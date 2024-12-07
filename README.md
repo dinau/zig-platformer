@@ -1,2 +1,2 @@
 # zig-platformer
-Writing a 2D Platform Game in LuaJIT with  Zig language
+Writing a 2D Platform Game in Zig language with SDL
