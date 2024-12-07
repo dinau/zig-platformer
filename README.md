@@ -1,6 +1,11 @@
 # zig-platformer
 Writing a 2D Platform Game in Zig language with SDL
 
+Just keep repo. at this monment.
+
+WIP.
+
+
 #### Other SDL game tutorial platfromer project
 
 ---
