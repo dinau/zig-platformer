@@ -16,12 +16,22 @@ const Vec2d = struct {
 };
 const Input = enum { none, left, right, jump, restart, quit };
 const Player = struct { texture: *ig.SDL_Texture, pos: Vec2f, vel: Vec2f };
+const Map = struct {
+    texture: *ig.SDL_Texture,
+    width: c_int,
+    height: c_int,
+    tiles: std.ArrayList(u8),
+};
 const Game = struct {
     renderer: *ig.SDL_Renderer,
     inputs: [6]bool,
     player: Player,
+    map: Map,
     camera: ig.SDL_FPoint,
 };
+
+const TilesPerRow = 16;
+const TileSize = Vec2d{ .x = 64, .y = 64 };
 
 const MainWinWidth: i32 = 1024;
 const MainWinHeight: i32 = 800;
@@ -52,6 +62,24 @@ fn renderTee(renderer: *ig.SDL_Renderer, texture: *ig.SDL_Texture, pos: Vec2f) v
     };
     for (bodyParts) |v| {
         _ = ig.SDL_RenderCopyExF(renderer, texture, &v.rect, &v.frect, 0.0, null, v.flip);
+    }
+}
+
+//--------------
+//--- renderMap
+//--------------
+fn renderMap(renderer: *ig.SDL_Renderer, map: Map, camera: ig.SDL_FPoint) void {
+    var clip = ig.SDL_Rect{ .x = 0, .y = 0, .w = TileSize.x, .h = TileSize.y };
+    var dest = ig.SDL_Rect{ .x = 0, .y = 0, .w = TileSize.x, .h = TileSize.y };
+    for (map.tiles.items, 0..) |tileNr, i| {
+        if (tileNr != 0) {
+            clip.x = (tileNr % TilesPerRow) * TileSize.x;
+            clip.y = (tileNr / TilesPerRow) * TileSize.y;
+            const n = @as(c_int, @intCast(i));
+            dest.x = @mod(n, map.width) * TileSize.x - @as(c_int, @intFromFloat(camera.x));
+            dest.y = @divFloor(n, map.width) * TileSize.y - @as(c_int, @intFromFloat(camera.y));
+            _ = ig.SDL_RenderCopy(renderer, map.texture, &clip, &dest);
+        }
     }
 }
 
@@ -106,13 +134,42 @@ fn newPlayer(texture: *ig.SDL_Texture) Player {
 }
 
 //------------
+//--- newMap     -- : Map type
+//------------
+fn newMap(alloc: std.mem.Allocator, texture: *ig.SDL_Texture, file: []const u8) !Map {
+    var map = Map{ .width = 0, .height = 0, .texture = texture, .tiles = std.ArrayList(u8).init(alloc) };
+    var fp = try std.fs.cwd().openFile(file, .{});
+    defer fp.close();
+    var buf_reader = std.io.bufferedReader(fp.reader());
+    var in_stream = buf_reader.reader();
+    var buf: [1024]u8 = undefined;
+    while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
+        var width: c_int = 0;
+        var it = std.mem.tokenizeAny(u8, line, " ");
+        while (it.next()) |word| {
+            const n = try std.fmt.parseInt(u8, word, 10);
+            try map.tiles.append(n);
+            width += 1;
+            //std.debug.print("{d} ", .{n});
+        }
+        if ((map.width > 0) and (map.width != width)) {
+            std.debug.print("Incompatible line length in map:  {s} ", .{file});
+        }
+        map.width = width;
+        map.height += 1;
+    }
+    return map;
+}
+
+//------------
 //--- newGame   -- Game type
 //------------
-fn newGame(renderer: *ig.SDL_Renderer, texture: *ig.SDL_Texture) Game {
+fn newGame(alloc: std.mem.Allocator, renderer: *ig.SDL_Renderer, texture_player: *ig.SDL_Texture, texture_grass: *ig.SDL_Texture) !Game {
     return Game{
         .renderer = renderer,
         .inputs = [6]bool{ false, false, false, false, false, false },
-        .player = newPlayer(texture),
+        .player = newPlayer(texture_player),
+        .map = try newMap(alloc, texture_grass, "default.map"),
         .camera = ig.SDL_FPoint{ .x = 0, .y = 0 },
     };
 }
@@ -143,6 +200,7 @@ fn render(self: *Game) void {
     _ = ig.SDL_RenderClear(self.renderer);
     const p = Vec2f{ .x = self.player.pos.x - self.camera.x, .y = self.player.pos.y - self.camera.y };
     renderTee(self.renderer, self.player.texture, p);
+    renderMap(self.renderer, self.map, self.camera);
     ig.SDL_RenderPresent(self.renderer);
 }
 
@@ -184,12 +242,23 @@ pub fn main() !void {
 
     _ = ig.SDL_SetRenderDrawColor(renderer, 110, 132, 174, 255);
 
+    //----------
+    // Alloator
+    //----------
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const alloc = arena.allocator();
+
     var w: c_int = undefined;
     var h: c_int = undefined;
     const fname: [*c]const u8 = "mushroom.png";
-    const texture = loadTextureFromFile(fname, renderer, &w, &h).?;
-    defer ig.SDL_DestroyTexture(texture);
-    var game = newGame(renderer, texture);
+    const texture_player = loadTextureFromFile(fname, renderer, &w, &h).?;
+    defer ig.SDL_DestroyTexture(texture_player);
+    const fname2: [*c]const u8 = "grass.png";
+    const texture_grass = loadTextureFromFile(fname2, renderer, &w, &h).?;
+    defer ig.SDL_DestroyTexture(texture_grass);
+
+    var game = try newGame(alloc, renderer, texture_player, texture_grass);
 
     //--------------
     //--- Main loop     Game loop, draws each frame

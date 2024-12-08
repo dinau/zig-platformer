@@ -1,3 +1,5 @@
 .zig-cache/
 zig-out/
-part4/
+.ccache/
+test/
+part5/

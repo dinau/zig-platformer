@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Zig-Platformer](#zig-platformer)
+  - [Support OS](#support-os)
+  - [Build and run](#build-and-run)
+  - [Key operation](#key-operation)
+  - [Tutorial sources](#tutorial-sources)
+  - [Other SDL game tutorial platfromer project](#other-sdl-game-tutorial-platfromer-project)
+  - [Other project](#other-project)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ### Zig-Platformer
 
 ---
@@ -56,7 +69,7 @@ make
 [platformer_part1](tutorial/part1/src/main.zig)  
 [platformer_part2](tutorial/part2/src/main.zig)  
 [platformer_part3](tutorial/part3/src/main.zig)  
-platformer_part4  
+[platformer_part4](tutorial/part4/src/main.zig)  
 platformer_part5 : From here it can move the item with key operation.  
 platformer_part6  
 platformer_part7  
