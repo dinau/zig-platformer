@@ -1,10 +1,66 @@
-# zig-platformer
-Writing a 2D Platform Game in Zig language with SDL
+### Zig-Platformer
 
-Just keep repo. at this monment.
+---
 
-WIP.
+Now work in progress.
 
+Tutorial: Writing a 2D Platform Game in [Zig language](https://ziglang.org) with SDL2.
+
+This repository has been inherited from
+[Nim-Platformer](https://github.com/def-/nim-platformer), [LuaJIT-Platformer](https://github.com/dinau/luajit-platformer) and [Nelua-Platformer](https://github.com/dinau/nelua-platformer)  project.
+   - Document  
+   English:  https://hookrace.net/blog/writing-a-2d-platform-game-in-nim-with-sdl2/  
+   Japanese: https://postd.cc/writing-a-2d-platform-game-in-nim-with-sdl2/  
+
+Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
+
+#### Support OS
+
+---
+
+Windows10 or later  
+Linux Mint 22 (or Debina family?)
+
+
+#### Build and run
+
+---
+
+```sh
+git clone https://github.com/dinau/zig-platformer
+cd zig-platformer
+```
+For instance,
+
+```sh
+cd part3
+make
+```
+
+#### Key operation
+
+---
+
+| Key            | Function |
+| :---:          | :---     |
+| Up,Space, J, K | Jump     |
+| Left, A, H     | Left     |
+| Right, D, L    | Right    |
+| R              | Restart  |
+| Q              | Quit     |
+
+#### Tutorial sources  
+
+---
+
+[platformer_part1](tutorial/part1/src/main.zig)  
+[platformer_part2](tutorial/part2/src/main.zig)  
+[platformer_part3](tutorial/part3/src/main.zig)  
+platformer_part4  
+platformer_part5 : From here it can move the item with key operation.  
+platformer_part6  
+platformer_part7  
+platformer_part8  
 
 #### Other SDL game tutorial platfromer project
 
@@ -18,6 +74,7 @@ WIP.
 | **LuaJIT**           | Script   | [LuaJIT-Platformer](https://github.com/dinau/luajit-platformer)                                           |
 | **Nelua**            | Compiler | [NeLua-Platformer](https://github.com/dinau/nelua-platformer)                                             |
 | **Zig**              | Compiler | [Zig-Platformer](https://github.com/dinau/zig-platformer) WIP                                             |
+| **C3**               | Compiler | [C3-Platformer](https://github.com/dinau/c3-platformer) WIP                                               |
 
 #### Other project
 
@@ -31,4 +88,3 @@ WIP.
 | **Zig**              | Compiler | [ImGuinZ](https://github.com/dinau/imguinz)                                                                                                     |
 | **NeLua**            | Compiler | [NeLuaImGui](https://github.com/dinau/neluaImGui)                                                                                               |
 | **Python**           | Script   | [DearPyGui for 32bit WindowsOS Binary](https://github.com/dinau/DearPyGui32/tree/win32)                                                         |
-
