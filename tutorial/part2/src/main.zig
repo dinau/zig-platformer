@@ -3,9 +3,11 @@ const ig = @cImport({
     @cInclude("SDL.h");
 });
 
+const RendererPtr = *ig.SDL_Renderer;
+
 const Input = enum { none, left, right, jump, restart, quit };
 const Game = struct {
-    renderer: *ig.SDL_Renderer,
+    renderer: RendererPtr,
     inputs: [6]bool,
 };
 
@@ -19,9 +21,9 @@ fn write(str: []const u8) void { // for print
     std.debug.print("{s}", .{str});
 }
 
-//-----------
-//-- toInput
-//-----------
+//------------
+//--- toInput
+//------------
 fn toInput(key: u32) usize {
     var res = Input.none;
     write("\n");
@@ -57,9 +59,9 @@ fn newGame(renderer: *ig.SDL_Renderer) Game {
     };
 }
 
-//--------------------
-//-- Game:handleInput
-//--------------------
+//----------------
+//--- handleInput
+//----------------
 fn handleInput(self: *Game) void {
     var event: ig.SDL_Event = undefined;
     while (ig.SDL_PollEvent(&event) != 0) {
@@ -111,9 +113,9 @@ pub fn main() !void {
 
     var game = newGame(renderer);
 
-    //--------------
-    //--- Main loop     Game loop, draws each frame
-    //--------------
+    //-----------
+    // Main loop     Game loop, draws each frame
+    //-----------
     while (!game.inputs[@as(usize, @intFromEnum(Input.quit))]) {
         handleInput(&game);
         render(&game);

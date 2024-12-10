@@ -46,6 +46,10 @@ const air = 0;
 const start = 78;
 const finish = 110;
 
+//--- Camera moving attribute
+const FluidCamera = true;
+const InnerCamera = false;
+
 //--------------
 //--- renderTee
 //--------------
@@ -86,9 +90,9 @@ fn renderMap(renderer: RendererPtr, map: Map, camera: ig.SDL_FPoint) void {
     }
 }
 
-//-----------
-//-- toInput
-//-----------
+//------------
+//--- toInput
+//------------
 fn toInput(key: u32) usize {
     var res = Input.none;
     write("\n");
@@ -223,9 +227,9 @@ fn getTile(map: Map, x: f32, y: f32) u8 {
     return map.tiles.items[@as(usize, @intFromFloat(pos))];
 }
 
-//---------------
+//-------------
 //--- isSolid
-//---------------
+//-------------
 fn isSolid(map: Map, pos: Vec2f) bool {
     const val = getTile(map, std.math.ceil(pos.x), std.math.ceil(pos.y));
     return (val != air) and (val != start) and (val != finish);
@@ -344,9 +348,27 @@ fn physics(self: *Game) void {
     moveBox(self, PlayerSize);
 }
 
-//---------------------
-// loadTextureFromFile
-//---------------------
+//---------------
+//--- moveCamera
+//---------------
+fn moveCamera(self: *Game) void{
+  const halfWin = MainWinWidth / 2;
+  if (FluidCamera) {
+    const dist = self.camera.x - self.player.pos.x + halfWin;
+    self.camera.x = self.camera.x - 0.05 * dist;
+    //std.debug.print(dist,self.camera.x);
+  } else if(InnerCamera){
+    const leftArea  = self.player.pos.x - halfWin - 100;
+    const rightArea = self.player.pos.x - halfWin + 100;
+    self.camera.x = std.math.clamp(self.camera.x, leftArea, rightArea);
+  } else{
+    self.camera.x = self.player.pos.x - halfWin;
+  }
+}
+
+//------------------------
+//--- loadTextureFromFile
+//------------------------
 fn loadTextureFromFile(filename: [*c]const u8, renderer: RendererPtr, outWidth: *c_int, outHeight: *c_int) ?TexturePtr {
     var channels: c_int = 4;
     const image_data = ig.stbi_load(filename, outWidth, outHeight, &channels, 4);
@@ -357,9 +379,9 @@ fn loadTextureFromFile(filename: [*c]const u8, renderer: RendererPtr, outWidth: 
     return outTexture;
 }
 
-//------
-// main
-//------
+//---------
+//--- main
+//---------
 pub fn main() !void {
     //----------------
     // Initialize SDL
@@ -402,15 +424,16 @@ pub fn main() !void {
     const startTime: i32 = ig.clock();
     var lastTick: i32 = 0;
 
-    //--------------
-    //--- Main loop     Game loop, draws each frame
-    //--------------
+    //-----------
+    // Main loop     Game loop, draws each frame
+    //-----------
     while (!game.inputs[@as(usize, @intFromEnum(Input.quit))]) {
         handleInput(&game);
         const newTick = @divFloor(((ig.clock() - startTime) * 50), 1000);
         var n = newTick - (lastTick + 1);
         while (n >= 0) : (n -= 1) {
             physics(&game);
+            moveCamera(&game);
         }
         lastTick = newTick;
         render(&game);

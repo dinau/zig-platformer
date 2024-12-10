@@ -4,7 +4,8 @@ const ig = @cImport({
     @cInclude("stb_image.h");
 });
 
-const allocator = std.heap.page_allocator;
+const TexturePtr = *ig.SDL_Texture;
+const RendererPtr = *ig.SDL_Renderer;
 
 const Vec2f = struct {
     x: f32,
@@ -14,16 +15,18 @@ const Vec2d = struct {
     x: c_int,
     y: c_int,
 };
+
 const Input = enum { none, left, right, jump, restart, quit };
-const Player = struct { texture: *ig.SDL_Texture, pos: Vec2f, vel: Vec2f };
+const Player = struct { texture: TexturePtr, pos: Vec2f, vel: Vec2f };
 const Map = struct {
-    texture: *ig.SDL_Texture,
+    texture: TexturePtr,
     width: c_int,
     height: c_int,
     tiles: std.ArrayList(u8),
 };
+
 const Game = struct {
-    renderer: *ig.SDL_Renderer,
+    renderer: RendererPtr,
     inputs: [6]bool,
     player: Player,
     map: Map,
@@ -46,7 +49,7 @@ fn write(str: []const u8) void { // for print
 //--------------
 //--- renderTee
 //--------------
-fn renderTee(renderer: *ig.SDL_Renderer, texture: *ig.SDL_Texture, pos: Vec2f) void {
+fn renderTee(renderer: RendererPtr, texture: TexturePtr, pos: Vec2f) void {
     const x = pos.x;
     const y = pos.y;
     const TBodyParts = struct { rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32 };
@@ -68,7 +71,7 @@ fn renderTee(renderer: *ig.SDL_Renderer, texture: *ig.SDL_Texture, pos: Vec2f) v
 //--------------
 //--- renderMap
 //--------------
-fn renderMap(renderer: *ig.SDL_Renderer, map: Map, camera: ig.SDL_FPoint) void {
+fn renderMap(renderer: RendererPtr, map: Map, camera: ig.SDL_FPoint) void {
     var clip = ig.SDL_Rect{ .x = 0, .y = 0, .w = TileSize.x, .h = TileSize.y };
     var dest = ig.SDL_Rect{ .x = 0, .y = 0, .w = TileSize.x, .h = TileSize.y };
     for (map.tiles.items, 0..) |tileNr, i| {
@@ -83,9 +86,9 @@ fn renderMap(renderer: *ig.SDL_Renderer, map: Map, camera: ig.SDL_FPoint) void {
     }
 }
 
-//-----------
-//-- toInput
-//-----------
+//------------
+//--- toInput
+//------------
 fn toInput(key: u32) usize {
     var res = Input.none;
     write("\n");
@@ -115,9 +118,9 @@ fn toInput(key: u32) usize {
 //--- restartPlayer
 //------------------
 const restartPos = Vec2f{ .x = 170, .y = 500 }; // -- Initial pos
-const restartVel = Vec2f{ .x = 0.0, .y = 0.0 }; //-- Initial vel
+const restartVel = Vec2f{ .x = 0.0, .y = 0.0 }; // -- Initial vel
 
-fn restartPlayer(self: Player) Player {
+fn restartPlayer(self: *Player) void {
     self.pos = restartPos;
     self.vel = restartVel;
 }
@@ -125,7 +128,7 @@ fn restartPlayer(self: Player) Player {
 //--------------
 //--- newPlayer   -- Player type
 //--------------
-fn newPlayer(texture: *ig.SDL_Texture) Player {
+fn newPlayer(texture: TexturePtr) Player {
     return Player{
         .texture = texture,
         .pos = restartPos,
@@ -133,10 +136,10 @@ fn newPlayer(texture: *ig.SDL_Texture) Player {
     };
 }
 
-//------------
+//-----------
 //--- newMap     -- : Map type
-//------------
-fn newMap(alloc: std.mem.Allocator, texture: *ig.SDL_Texture, file: []const u8) !Map {
+//-----------
+fn newMap(alloc: std.mem.Allocator, texture: TexturePtr, file: []const u8) !Map {
     var map = Map{ .width = 0, .height = 0, .texture = texture, .tiles = std.ArrayList(u8).init(alloc) };
     var fp = try std.fs.cwd().openFile(file, .{});
     defer fp.close();
@@ -150,7 +153,6 @@ fn newMap(alloc: std.mem.Allocator, texture: *ig.SDL_Texture, file: []const u8) 
             const n = try std.fmt.parseInt(u8, word, 10);
             try map.tiles.append(n);
             width += 1;
-            //std.debug.print("{d} ", .{n});
         }
         if ((map.width > 0) and (map.width != width)) {
             std.debug.print("Incompatible line length in map:  {s} ", .{file});
@@ -164,7 +166,7 @@ fn newMap(alloc: std.mem.Allocator, texture: *ig.SDL_Texture, file: []const u8) 
 //------------
 //--- newGame   -- Game type
 //------------
-fn newGame(alloc: std.mem.Allocator, renderer: *ig.SDL_Renderer, texture_player: *ig.SDL_Texture, texture_grass: *ig.SDL_Texture) !Game {
+fn newGame(alloc: std.mem.Allocator, renderer: RendererPtr, texture_player: TexturePtr, texture_grass: TexturePtr) !Game {
     return Game{
         .renderer = renderer,
         .inputs = [6]bool{ false, false, false, false, false, false },
@@ -174,9 +176,9 @@ fn newGame(alloc: std.mem.Allocator, renderer: *ig.SDL_Renderer, texture_player:
     };
 }
 
-//--------------------
-//-- Game:handleInput
-//--------------------
+//----------------
+//--- handleInput
+//----------------
 fn handleInput(self: *Game) void {
     var event: ig.SDL_Event = undefined;
     while (ig.SDL_PollEvent(&event) != 0) {
@@ -204,9 +206,9 @@ fn render(self: *Game) void {
     ig.SDL_RenderPresent(self.renderer);
 }
 
-//#---------------------
-//# loadTextureFromFile
-//#---------------------
+//------------------------
+//--- loadTextureFromFile
+//------------------------
 fn loadTextureFromFile(filename: [*c]const u8, renderer: *ig.SDL_Renderer, outWidth: *c_int, outHeight: *c_int) ?*ig.SDL_Texture {
     var channels: c_int = 4;
     const image_data = ig.stbi_load(filename, outWidth, outHeight, &channels, 4);
@@ -217,9 +219,9 @@ fn loadTextureFromFile(filename: [*c]const u8, renderer: *ig.SDL_Renderer, outWi
     return outTexture;
 }
 
-//--------
-// main()
-//--------
+//----------
+// --- main
+//----------
 pub fn main() !void {
     //----------------
     // Initialize SDL
@@ -242,9 +244,7 @@ pub fn main() !void {
 
     _ = ig.SDL_SetRenderDrawColor(renderer, 110, 132, 174, 255);
 
-    //----------
-    // Alloator
-    //----------
+        // Alloator
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const alloc = arena.allocator();
@@ -258,11 +258,12 @@ pub fn main() !void {
     const texture_grass = loadTextureFromFile(fname2, renderer, &w, &h).?;
     defer ig.SDL_DestroyTexture(texture_grass);
 
+    // NewGame
     var game = try newGame(alloc, renderer, texture_player, texture_grass);
 
-    //--------------
-    //--- Main loop     Game loop, draws each frame
-    //--------------
+    //-----------
+    // Main loop     Game loop, draws each frame
+    //-----------
     while (!game.inputs[@as(usize, @intFromEnum(Input.quit))]) {
         handleInput(&game);
         render(&game);

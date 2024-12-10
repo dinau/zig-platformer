@@ -4,7 +4,8 @@ const ig = @cImport({
     @cInclude("stb_image.h");
 });
 
-const allocator = std.heap.page_allocator;
+const TexturePtr = *ig.SDL_Texture;
+const RendererPtr = *ig.SDL_Renderer;
 
 const Vec2f = struct {
     x: f32,
@@ -14,10 +15,11 @@ const Vec2d = struct {
     x: c_int,
     y: c_int,
 };
+
 const Input = enum { none, left, right, jump, restart, quit };
-const Player = struct { texture: *ig.SDL_Texture, pos: Vec2f, vel: Vec2f };
+const Player = struct { texture: TexturePtr, pos: Vec2f, vel: Vec2f };
 const Game = struct {
-    renderer: *ig.SDL_Renderer,
+    renderer: RendererPtr,
     inputs: [6]bool,
     player: Player,
     camera: ig.SDL_FPoint,
@@ -36,7 +38,7 @@ fn write(str: []const u8) void { // for print
 //--------------
 //--- renderTee
 //--------------
-fn renderTee(renderer: *ig.SDL_Renderer, texture: *ig.SDL_Texture, pos: Vec2f) void {
+fn renderTee(renderer: RendererPtr, texture: TexturePtr, pos: Vec2f) void {
     const x = pos.x;
     const y = pos.y;
     const TBodyParts = struct { rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32 };
@@ -56,8 +58,8 @@ fn renderTee(renderer: *ig.SDL_Renderer, texture: *ig.SDL_Texture, pos: Vec2f) v
 }
 
 //-----------
-//-- toInput
-//-----------
+//--- toInput
+//------------
 fn toInput(key: u32) usize {
     var res = Input.none;
     write("\n");
@@ -87,9 +89,9 @@ fn toInput(key: u32) usize {
 //--- restartPlayer
 //------------------
 const restartPos = Vec2f{ .x = 170, .y = 500 }; // -- Initial pos
-const restartVel = Vec2f{ .x = 0.0, .y = 0.0 }; //-- Initial vel
+const restartVel = Vec2f{ .x = 0.0, .y = 0.0 }; // -- Initial vel
 
-fn restartPlayer(self: Player) Player {
+fn restartPlayer(self: *Player) void {
     self.pos = restartPos;
     self.vel = restartVel;
 }
@@ -97,7 +99,7 @@ fn restartPlayer(self: Player) Player {
 //--------------
 //--- newPlayer   -- Player type
 //--------------
-fn newPlayer(texture: *ig.SDL_Texture) Player {
+fn newPlayer(texture: TexturePtr) Player {
     return Player{
         .texture = texture,
         .pos = restartPos,
@@ -108,7 +110,7 @@ fn newPlayer(texture: *ig.SDL_Texture) Player {
 //------------
 //--- newGame   -- Game type
 //------------
-fn newGame(renderer: *ig.SDL_Renderer, texture: *ig.SDL_Texture) Game {
+fn newGame(renderer: RendererPtr, texture: TexturePtr) Game {
     return Game{
         .renderer = renderer,
         .inputs = [6]bool{ false, false, false, false, false, false },
@@ -117,9 +119,9 @@ fn newGame(renderer: *ig.SDL_Renderer, texture: *ig.SDL_Texture) Game {
     };
 }
 
-//--------------------
-//-- Game:handleInput
-//--------------------
+//----------------
+//--- handleInput
+//----------------
 fn handleInput(self: *Game) void {
     var event: ig.SDL_Event = undefined;
     while (ig.SDL_PollEvent(&event) != 0) {
@@ -146,9 +148,9 @@ fn render(self: *Game) void {
     ig.SDL_RenderPresent(self.renderer);
 }
 
-//#---------------------
-//# loadTextureFromFile
-//#---------------------
+//------------------------
+//--- loadTextureFromFile
+//------------------------
 fn loadTextureFromFile(filename: [*c]const u8, renderer: *ig.SDL_Renderer, outWidth: *c_int, outHeight: *c_int) ?*ig.SDL_Texture {
     var channels: c_int = 4;
     const image_data = ig.stbi_load(filename, outWidth, outHeight, &channels, 4);
@@ -159,9 +161,9 @@ fn loadTextureFromFile(filename: [*c]const u8, renderer: *ig.SDL_Renderer, outWi
     return outTexture;
 }
 
-//--------
-// main()
-//--------
+//----------
+// --- main
+//----------
 pub fn main() !void {
     //----------------
     // Initialize SDL

@@ -1,9 +1,6 @@
 all:
-	$(MAKE) -C tutorial/part1
-	$(MAKE) -C tutorial/part2
-	$(MAKE) -C tutorial/part3
-	$(MAKE) -C tutorial/part4
-	$(MAKE) -C tutorial/part5
+	$(MAKE) -C tutorial build
+
 clean:
 	$(MAKE) -C tutorial/part1 clean
 	$(MAKE) -C tutorial/part2 clean
