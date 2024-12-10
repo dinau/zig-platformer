@@ -8,7 +8,7 @@ endif
 all:
 	zig build --release=fast
 
-run:
+run: all
 	(cd zig-out/bin; ./$(TARGET)$(EXE))
 
 .PHONY: fmt
