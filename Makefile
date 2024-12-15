@@ -1,5 +1,5 @@
 all:
-	$(MAKE) -C tutorial build
+	$(MAKE) -C tutorial
 
 clean:
 	$(MAKE) -C tutorial/part1 clean
