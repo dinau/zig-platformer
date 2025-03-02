@@ -438,7 +438,7 @@ pub fn main() !void {
     // NewGame
     var game = try newGame(alloc, renderer, texture_player, texture_grass);
 
-    const startTime: i32 = ig.clock();
+    const startTime = ig.clock();
     var lastTick: i32 = 0;
 
     //-----------
