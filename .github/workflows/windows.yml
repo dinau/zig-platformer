@@ -1,0 +1,23 @@
+name: Windows OS 0.14.0-dev nightly compilation-
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  win_nightly:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - uses: mlugg/setup-zig@v1
+      with:
+        version: master
+
+    - name: make
+      run: make

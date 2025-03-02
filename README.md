@@ -15,6 +15,9 @@
 
 ---
 
+![alt](https://github.com/dinau/zig-platformer/actions/workflows/windows.yml/badge.svg)  ![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel.yml/badge.svg)  
+![alt](https://github.com/dinau/zig-platformer/actions/workflows/linux.yml/badge.svg)
+
 Now work in progress.
 
 Tutorial: Writing a 2D Platform Game in [Zig language](https://ziglang.org) with SDL2.
@@ -27,13 +30,28 @@ This repository has been inherited from
 
 Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
+### Prerequisites
+
+#### Zig version
+
+---
+
+- [x] Windows:  [zig-0.14.0-dev.3445+6c3cbb0c8.zip](https://ziglang.org/builds/zig-windows-x86_64-0.14.0-dev.3445+6c3cbb0c8.zip) (2025/03/02)  
+- [x] Linux Debian: [zig-0.14.0-dev.3445+6c3cbb0c8.tar.xz](https://ziglang.org/builds/zig-linux-x86_64-0.14.0-dev.3445+6c3cbb0c8.tar.xz)
+- [x] zig-0.13.0
+
 #### Support OS
 
 ---
 
-[x] Windows10 or later  
-[x] Linux: Debian families
+- Windows10 or later  
+   - MSys2/MinGW basic commands (make, rm, cp, strip ...)
+- Linux: Debian families
 
+  ```sh
+  $ sudo apt install xorg-dev libopengl-dev libgl1-mesa-dev
+  $ sudo apt install libsdl2-dev
+  ```
 
 #### Build and run
 
