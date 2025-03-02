@@ -12,7 +12,7 @@ const Vec2f = struct {
     x: f32,
     y: f32,
 };
-const Vec2d = struct {
+const Vec2i = struct {
     x: c_int,
     y: c_int,
 };
@@ -36,8 +36,8 @@ const Game = struct {
 };
 
 const TilesPerRow = 16;
-const TileSize = Vec2d{ .x = 64, .y = 64 };
-const PlayerSize = Vec2f{ .x = 64, .y = 64 };
+const TileSize   = vec2i(64, 64);
+const PlayerSize = vec2f(64, 64);
 
 const MainWinWidth: i32 = 1024;
 const MainWinHeight: i32 = 800;
@@ -46,22 +46,61 @@ const air = 0;
 const start = 78;
 const finish = 110;
 
+//--- Camera moving attribute
+const FluidCamera = true;
+const InnerCamera = false;
+
+//-----------
+//-- vec2f
+//-----------
+inline fn vec2f(x:f32, y:f32) Vec2f {
+  return Vec2f{ .x = x, .y = y};
+}
+
+//-----------
+//-- vec2i
+//-----------
+inline fn vec2i(x:i32, y:i32) Vec2i {
+  return Vec2i{ .x = x, .y = y};
+}
+
+//-----------
+//-- newRect
+//-----------
+inline fn newRect(x:i32, y:i32, w:i32, h:i32) ig.SDL_Rect {
+  return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h};
+}
+
+//-----------
+//-- newFRect
+//-----------
+inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
+  return ig.SDL_FRect{.x = x, .y = y, .w = w, .h = h};
+}
+
+//----------------
+//-- newBodyParts
+//----------------
+const TBodyParts = struct { rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32 };
+inline fn newBodyParts(rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32) TBodyParts {
+ return TBodyParts{.rect = rect, .frect = frect, .flip = flip};
+}
+
 //--------------
 //--- renderTee
 //--------------
 fn renderTee(renderer: RendererPtr, texture: TexturePtr, pos: Vec2f) void {
     const x = pos.x;
     const y = pos.y;
-    const TBodyParts = struct { rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32 };
     const bodyParts = [8]TBodyParts{
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 192, .y = 64, .w = 64, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 60, .y = y, .w = 96, .h = 48 }, .flip = ig.SDL_FLIP_NONE }, //-- back feet shadow
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 96, .y = 0, .w = 96, .h = 96 }, .frect = ig.SDL_FRect{ .x = x - 48, .y = y - 48, .w = 96, .h = 96 }, .flip = ig.SDL_FLIP_NONE }, //-- body shadow
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 192, .y = 64, .w = 64, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 36, .y = y, .w = 96, .h = 48 }, .flip = ig.SDL_FLIP_NONE }, //-- front feet shadow
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 192, .y = 32, .w = 64, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 60, .y = y, .w = 96, .h = 48 }, .flip = ig.SDL_FLIP_NONE }, //-- back feet
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 0, .y = 0, .w = 96, .h = 96 }, .frect = ig.SDL_FRect{ .x = x - 48, .y = y - 48, .w = 96, .h = 96 }, .flip = ig.SDL_FLIP_NONE }, //-- body
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 192, .y = 32, .w = 64, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 36, .y = y, .w = 96, .h = 48 }, .flip = ig.SDL_FLIP_NONE }, //-- front feet
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 64, .y = 96, .w = 32, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 18, .y = y - 21, .w = 36, .h = 36 }, .flip = ig.SDL_FLIP_NONE }, //-- left eye
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 64, .y = 96, .w = 32, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 6, .y = y - 21, .w = 36, .h = 36 }, .flip = ig.SDL_FLIP_HORIZONTAL }, //-- right eye
+        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet shadow
+        newBodyParts(newRect(96,   0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body shadow
+        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet shadow
+        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet
+        newBodyParts(newRect(0,    0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body
+        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet
+        newBodyParts(newRect(64,  96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE),       //-- left eye
+        newBodyParts(newRect(64,  96, 32, 32), newFRect(x - 6,  y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
     };
     for (bodyParts) |v| {
         _ = ig.SDL_RenderCopyExF(renderer, texture, &v.rect, &v.frect, 0.0, null, v.flip);
@@ -86,9 +125,9 @@ fn renderMap(renderer: RendererPtr, map: Map, camera: ig.SDL_FPoint) void {
     }
 }
 
-//-----------
-//-- toInput
-//-----------
+//------------
+//--- toInput
+//------------
 fn toInput(key: u32) usize {
     var res = Input.none;
     write("\n");
@@ -124,8 +163,8 @@ fn write(str: []const u8) void { // for print
 //------------------
 //--- restartPlayer
 //------------------
-const restartPos = Vec2f{ .x = 170, .y = 500 }; // -- Initial pos
-const restartVel = Vec2f{ .x = 0.0, .y = 0.0 }; // -- Initial vel
+const restartPos = vec2f(170, 500); // -- Initial pos
+const restartVel = vec2f(0.0, 0.0); // -- Initial vel
 
 fn restartPlayer(self: *Player) void {
     self.pos = restartPos;
@@ -207,7 +246,7 @@ fn handleInput(self: *Game) void {
 //-----------
 fn render(self: *Game) void {
     _ = ig.SDL_RenderClear(self.renderer);
-    const p = Vec2f{ .x = self.player.pos.x - self.camera.x, .y = self.player.pos.y - self.camera.y };
+    const p = vec2f(self.player.pos.x - self.camera.x, self.player.pos.y - self.camera.y);
     renderTee(self.renderer, self.player.texture, p);
     renderMap(self.renderer, self.map, self.camera);
     ig.SDL_RenderPresent(self.renderer);
@@ -223,9 +262,9 @@ fn getTile(map: Map, x: f32, y: f32) u8 {
     return map.tiles.items[@as(usize, @intFromFloat(pos))];
 }
 
-//---------------
+//-------------
 //--- isSolid
-//---------------
+//-------------
 fn isSolid(map: Map, pos: Vec2f) bool {
     const val = getTile(map, std.math.ceil(pos.x), std.math.ceil(pos.y));
     return (val != air) and (val != start) and (val != finish);
@@ -235,9 +274,9 @@ fn isSolid(map: Map, pos: Vec2f) bool {
 //--- onGround
 //-------------
 fn onGround(map: Map, pos: Vec2f, size: Vec2f) bool {
-    const sz = Vec2f{ .x = size.x * 0.5, .y = size.y * 0.5 };
-    const pt1 = Vec2f{ .x = pos.x - sz.x, .y = pos.y + sz.y + 1 };
-    const pt2 = Vec2f{ .x = pos.x + sz.x, .y = pos.y + sz.y + 1 };
+    const sz  = vec2f(size.x * 0.5, size.y * 0.5);
+    const pt1 = vec2f(pos.x - sz.x, pos.y + sz.y + 1);
+    const pt2 = vec2f(pos.x + sz.x, pos.y + sz.y + 1);
     return isSolid(map, pt1) or isSolid(map, pt2);
 }
 
@@ -245,11 +284,11 @@ fn onGround(map: Map, pos: Vec2f, size: Vec2f) bool {
 //--- testBox
 //------------
 fn testBox(map: Map, pos: Vec2f, size: Vec2f) bool {
-    const sz = Vec2f{ .x = size.x * 0.5, .y = size.y * 0.5 };
-    return isSolid(map, Vec2f{ .x = pos.x - sz.x, .y = pos.y - sz.y }) or
-        isSolid(map, Vec2f{ .x = pos.x + sz.x, .y = pos.y - sz.y }) or
-        isSolid(map, Vec2f{ .x = pos.x - sz.x, .y = pos.y + sz.y }) or
-        isSolid(map, Vec2f{ .x = pos.x + sz.x, .y = pos.y + sz.y });
+    const sz = vec2f(size.x * 0.5, size.y * 0.5);
+    return isSolid(map, vec2f(pos.x - sz.x, pos.y - sz.y)) or
+        isSolid(map,    vec2f(pos.x + sz.x, pos.y - sz.y)) or
+        isSolid(map,    vec2f(pos.x - sz.x, pos.y + sz.y)) or
+        isSolid(map,    vec2f(pos.x + sz.x, pos.y + sz.y));
 }
 
 //----------------
@@ -273,13 +312,13 @@ fn moveBox(self: *Game, size: Vec2f) void { // vector(Collision)
     //local result: vector(Collision)
     var i: i32 = 0;
     while (i < @as(i32, @intFromFloat(maximum))) {
-        var newPos = Vec2f{ .x = 0.0, .y = 0.0 };
+        var newPos = vec2f(0.0, 0.0);
         newPos.x = self.player.pos.x + (self.player.vel.x * fraction);
         newPos.y = self.player.pos.y + (self.player.vel.y * fraction);
 
         if (testBox(self.map, newPos, size)) {
             var hit = false;
-            var pt = Vec2f{ .x = self.player.pos.x, .y = newPos.y };
+            var pt = vec2f(self.player.pos.x, newPos.y);
             if (testBox(self.map, pt, size)) {
                 //result:push(Collision.y)
                 newPos.y = self.player.pos.y;
@@ -287,7 +326,7 @@ fn moveBox(self: *Game, size: Vec2f) void { // vector(Collision)
                 hit = true;
             }
 
-            pt = Vec2f{ .x = newPos.x, .y = self.player.pos.y };
+            pt = vec2f(newPos.x, self.player.pos.y);
             if (testBox(self.map, pt, size)) {
                 //result:push(Collision.x)
                 newPos.x = self.player.pos.x;
@@ -299,7 +338,7 @@ fn moveBox(self: *Game, size: Vec2f) void { // vector(Collision)
                 //result:push(Collision.corner)
                 //-- newPos = self.player.pos
                 self.player.pos = newPos;
-                self.player.vel = Vec2f{ .x = 0.0, .y = 0.0 };
+                self.player.vel = vec2f(0.0, 0.0);
             }
         }
         self.player.pos = newPos;
@@ -357,9 +396,9 @@ fn loadTextureFromFile(filename: [*c]const u8, renderer: RendererPtr, outWidth: 
     return outTexture;
 }
 
-//------
-// main
-//------
+//---------
+//--- main
+//---------
 pub fn main() !void {
     //----------------
     // Initialize SDL
@@ -402,9 +441,9 @@ pub fn main() !void {
     const startTime: i32 = ig.clock();
     var lastTick: i32 = 0;
 
-    //--------------
-    //--- Main loop     Game loop, draws each frame
-    //--------------
+    //-----------
+    // Main loop     Game loop, draws each frame
+    //-----------
     while (!game.inputs[@as(usize, @intFromEnum(Input.quit))]) {
         handleInput(&game);
         const newTick = @divFloor(((ig.clock() - startTime) * 50), 1000);

@@ -1,15 +1,21 @@
+ifeq ($(OS),Windows_NT)
+	EXE = .exe
+endif
+
+PART_NUMS  = 1 2 3 4 5 6 7
+
 all:
-	$(MAKE) -C tutorial
+	$(foreach exdir,$(PART_NUMS), $(call def_make,part$(exdir),$@))
+
+PHONY: clean
 
 clean:
-	$(MAKE) -C tutorial/part1 clean
-	$(MAKE) -C tutorial/part2 clean
-	$(MAKE) -C tutorial/part3 clean
-	$(MAKE) -C tutorial/part4 clean
-	$(MAKE) -C tutorial/part5 clean
-fmt:
-	$(MAKE) -C tutorial/part1 fmt
-	$(MAKE) -C tutorial/part2 fmt
-	$(MAKE) -C tutorial/part3 fmt
-	$(MAKE) -C tutorial/part4 fmt
-	$(MAKE) -C tutorial/part5 fmt
+	$(foreach exdir,$(PART_NUMS), $(call def_make,part$(exdir),$@))
+
+
+define def_make
+	@$(MAKE) -C tutorial/$(1) $(2)
+
+endef
+
+MAKEFLAGS += --no-print-directory

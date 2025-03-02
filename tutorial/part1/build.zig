@@ -12,7 +12,7 @@ pub fn build(b: *std.Build) void {
     });
     b.installArtifact(lib);
     const exe = b.addExecutable(.{
-        .name = "part1",
+        .name = "platformer_part1",
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,

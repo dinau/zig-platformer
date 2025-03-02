@@ -11,7 +11,7 @@ const Vec2f = struct {
     x: f32,
     y: f32,
 };
-const Vec2d = struct {
+const Vec2i = struct {
     x: c_int,
     y: c_int,
 };
@@ -35,22 +35,57 @@ fn write(str: []const u8) void { // for print
     std.debug.print("{s}", .{str});
 }
 
+//-----------
+//-- vec2f
+//-----------
+inline fn vec2f(x:f32, y:f32) Vec2f {
+  return Vec2f{ .x = x, .y = y};
+}
+
+//-----------
+//-- vec2i
+//-----------
+inline fn vec2i(x:i32, y:i32) Vec2i {
+  return Vec2i{ .x = x, .y = y};
+}
+
+//-----------
+//-- newRect
+//-----------
+inline fn newRect(x:i32, y:i32, w:i32, h:i32) ig.SDL_Rect {
+  return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h};
+}
+
+//-----------
+//-- newFRect
+//-----------
+inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
+  return ig.SDL_FRect{.x = x, .y = y, .w = w, .h = h};
+}
+
+//----------------
+//-- newBodyParts
+//----------------
+const TBodyParts = struct { rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32 };
+inline fn newBodyParts(rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32) TBodyParts {
+ return TBodyParts{.rect = rect, .frect = frect, .flip = flip};
+}
+
 //--------------
 //--- renderTee
 //--------------
 fn renderTee(renderer: RendererPtr, texture: TexturePtr, pos: Vec2f) void {
     const x = pos.x;
     const y = pos.y;
-    const TBodyParts = struct { rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32 };
     const bodyParts = [8]TBodyParts{
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 192, .y = 64, .w = 64, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 60, .y = y, .w = 96, .h = 48 }, .flip = ig.SDL_FLIP_NONE }, //-- back feet shadow
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 96, .y = 0, .w = 96, .h = 96 }, .frect = ig.SDL_FRect{ .x = x - 48, .y = y - 48, .w = 96, .h = 96 }, .flip = ig.SDL_FLIP_NONE }, //-- body shadow
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 192, .y = 64, .w = 64, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 36, .y = y, .w = 96, .h = 48 }, .flip = ig.SDL_FLIP_NONE }, //-- front feet shadow
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 192, .y = 32, .w = 64, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 60, .y = y, .w = 96, .h = 48 }, .flip = ig.SDL_FLIP_NONE }, //-- back feet
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 0, .y = 0, .w = 96, .h = 96 }, .frect = ig.SDL_FRect{ .x = x - 48, .y = y - 48, .w = 96, .h = 96 }, .flip = ig.SDL_FLIP_NONE }, //-- body
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 192, .y = 32, .w = 64, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 36, .y = y, .w = 96, .h = 48 }, .flip = ig.SDL_FLIP_NONE }, //-- front feet
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 64, .y = 96, .w = 32, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 18, .y = y - 21, .w = 36, .h = 36 }, .flip = ig.SDL_FLIP_NONE }, //-- left eye
-        TBodyParts{ .rect = ig.SDL_Rect{ .x = 64, .y = 96, .w = 32, .h = 32 }, .frect = ig.SDL_FRect{ .x = x - 6, .y = y - 21, .w = 36, .h = 36 }, .flip = ig.SDL_FLIP_HORIZONTAL }, //-- right eye
+        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet shadow
+        newBodyParts(newRect(96,   0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body shadow
+        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet shadow
+        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet
+        newBodyParts(newRect(0,    0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body
+        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet
+        newBodyParts(newRect(64,  96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE),       //-- left eye
+        newBodyParts(newRect(64,  96, 32, 32), newFRect(x - 6,  y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
     };
     for (bodyParts) |v| {
         _ = ig.SDL_RenderCopyExF(renderer, texture, &v.rect, &v.frect, 0.0, null, v.flip);
@@ -88,8 +123,8 @@ fn toInput(key: u32) usize {
 //------------------
 //--- restartPlayer
 //------------------
-const restartPos = Vec2f{ .x = 170, .y = 500 }; // -- Initial pos
-const restartVel = Vec2f{ .x = 0.0, .y = 0.0 }; // -- Initial vel
+const restartPos = vec2f(170, 500); // -- Initial pos
+const restartVel = vec2f(0.0, 0.0); // -- Initial vel
 
 fn restartPlayer(self: *Player) void {
     self.pos = restartPos;
@@ -143,7 +178,7 @@ fn handleInput(self: *Game) void {
 //-----------
 fn render(self: *Game) void {
     _ = ig.SDL_RenderClear(self.renderer);
-    const p = Vec2f{ .x = self.player.pos.x - self.camera.x, .y = self.player.pos.y - self.camera.y };
+    const p = vec2f(self.player.pos.x - self.camera.x, self.player.pos.y - self.camera.y);
     renderTee(self.renderer, self.player.texture, p);
     ig.SDL_RenderPresent(self.renderer);
 }
@@ -161,9 +196,9 @@ fn loadTextureFromFile(filename: [*c]const u8, renderer: *ig.SDL_Renderer, outWi
     return outTexture;
 }
 
-//----------
-// --- main
-//----------
+//---------
+//--- main
+//---------
 pub fn main() !void {
     //----------------
     // Initialize SDL
@@ -193,9 +228,9 @@ pub fn main() !void {
     defer ig.SDL_DestroyTexture(texture);
     var game = newGame(renderer, texture);
 
-    //--------------
-    //--- Main loop     Game loop, draws each frame
-    //--------------
+    //-----------
+    // Main loop     Game loop, draws each frame
+    //-----------
     while (!game.inputs[@as(usize, @intFromEnum(Input.quit))]) {
         handleInput(&game);
         render(&game);

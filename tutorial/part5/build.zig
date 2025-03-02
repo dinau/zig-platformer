@@ -12,7 +12,7 @@ pub fn build(b: *std.Build) void {
     });
     b.installArtifact(lib);
     const exe = b.addExecutable(.{
-        .name = "part5",
+        .name = "platformer_part5",
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
@@ -88,7 +88,7 @@ pub fn build(b: *std.Build) void {
     //exe.addObjectFile(b.path(b.pathJoin(&.{sdl2_path, "lib","libSDL2dll.a"})));
     //exe.linkSystemLibrary("SDL2dll"); // For dynamic link
     exe.linkLibC();
-    //exe.subsystem = .Windows;  // Hide console window
+    exe.subsystem = .Windows;  // Hide console window
 
     const resBin =   [_][]const u8{ "mushroom.png", "grass.png", "default.map", };
     inline for(resBin)|file|{

@@ -31,8 +31,8 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
 ---
 
-Windows10 or later  
-Linux Mint 22 (or Debina family?)
+[x] Windows10 or later  
+[x] Linux: Debian families
 
 
 #### Build and run
@@ -47,7 +47,7 @@ For instance,
 
 ```sh
 cd part3
-make
+make run       # or zig build --release=fast run
 ```
 
 #### Key operation
@@ -66,14 +66,14 @@ make
 
 ---
 
-[platformer_part1](tutorial/part1/src/main.zig)  
-[platformer_part2](tutorial/part2/src/main.zig)  
-[platformer_part3](tutorial/part3/src/main.zig)  
-[platformer_part4](tutorial/part4/src/main.zig)  
-platformer_part5 : From here it can move the item with key operation.  
-platformer_part6  
-platformer_part7  
-platformer_part8  
+[platformer_part1](https://github.com/dinau/zig-platformer/blob/main/tutorial/part1/src/main.zig)  
+[platformer_part2](https://github.com/dinau/zig-platformer/blob/main/tutorial/part2/src/main.zig)  
+[platformer_part3](https://github.com/dinau/zig-platformer/blob/main/tutorial/part3/src/main.zig)  
+[platformer_part4](https://github.com/dinau/zig-platformer/blob/main/tutorial/part4/src/main.zig)  
+[platformer_part5](https://github.com/dinau/zig-platformer/blob/main/tutorial/part5/src/main.zig) : From here it can move the item with key operation.  
+[platformer_part6](https://github.com/dinau/zig-platformer/blob/main/tutorial/part6/src/main.zig)  
+[platformer_part7](https://github.com/dinau/zig-platformer/blob/main/tutorial/part7/src/main.zig)  
+[platformer_part8]
 
 #### Other SDL game tutorial platfromer project
 
