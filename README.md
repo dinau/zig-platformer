@@ -36,8 +36,8 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
 ---
 
-- [x] Windows:  [zig-0.14.0-dev.3445+6c3cbb0c8.zip](https://ziglang.org/builds/zig-windows-x86_64-0.14.0-dev.3445+6c3cbb0c8.zip) (2025/03/02)  
-- [x] Linux Debian: [zig-0.14.0-dev.3445+6c3cbb0c8.tar.xz](https://ziglang.org/builds/zig-linux-x86_64-0.14.0-dev.3445+6c3cbb0c8.tar.xz)
+- [x] Windows:  [zig-0.14.0.zip](https://ziglang.org/builds/zig-windows-x86_64-0.14.0.zip) (2025/03)  
+- [x] Linux Debian: [zig-0.14.0.tar.xz](https://ziglang.org/builds/zig-linux-x86_64-0.14.0.tar.xz)
 - [x] zig-0.13.0
 
 #### Support OS
@@ -65,7 +65,15 @@ For instance,
 
 ```sh
 cd part3
-make run       # or zig build --release=fast run
+make run       
+```
+or 
+
+```sh
+cd part3
+zig build --release=fast
+cd zig-out/bin 
+platformer_part3.exe
 ```
 
 #### Key operation

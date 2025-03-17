@@ -519,8 +519,8 @@ pub fn main() !void {
     // NewGame
     var game = try newGame(alloc, renderer, texture_player, texture_grass);
 
-    const startTime = ig.clock();
-    var lastTick: i32 = 0;
+    const startTime:c_long = ig.clock();
+    var lastTick: c_long = 0;
 
     //-----------
     // Main loop     Game loop, draws each frame

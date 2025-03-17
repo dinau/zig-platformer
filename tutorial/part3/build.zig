@@ -37,7 +37,6 @@ pub fn build(b: *std.Build) void {
     //---------------
     exe.addCSourceFiles(.{
       .files = &.{
-        // ImGui
         "../libs/stb/stb_impl.c",
       },
       .flags = &.{

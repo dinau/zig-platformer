@@ -37,7 +37,6 @@ pub fn build(b: *std.Build) void {
     //---------------
     exe.addCSourceFiles(.{
       .files = &.{
-        // ImGui
         "../libs/stb/stb_impl.c",
       },
       .flags = &.{
@@ -88,7 +87,9 @@ pub fn build(b: *std.Build) void {
     //exe.addObjectFile(b.path(b.pathJoin(&.{sdl2_path, "lib","libSDL2dll.a"})));
     //exe.linkSystemLibrary("SDL2dll"); // For dynamic link
     exe.linkLibC();
-    exe.subsystem = .Windows;  // Hide console window
+    if (builtin.target.os.tag == .windows){
+      exe.subsystem = .Windows;  // Hide console window
+    }
 
     const resBin =   [_][]const u8{ "mushroom.png", "grass.png", "default.map", };
     inline for(resBin)|file|{
