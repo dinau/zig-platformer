@@ -17,6 +17,7 @@
 
 ![alt](https://github.com/dinau/zig-platformer/actions/workflows/windows.yml/badge.svg)  ![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel.yml/badge.svg)  
 ![alt](https://github.com/dinau/zig-platformer/actions/workflows/linux.yml/badge.svg)
+![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel_linux.yml/badge.svg)
 
 Now work in progress.
 
@@ -37,8 +38,7 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 ---
 
 - [x] Windows:  [zig-0.14.0.zip](https://ziglang.org/builds/zig-windows-x86_64-0.14.0.zip) (2025/03)  
-- [x] Linux Debian: [zig-0.14.0.tar.xz](https://ziglang.org/builds/zig-linux-x86_64-0.14.0.tar.xz)
-- [x] zig-0.13.0
+- [x] Linux Debian families: [zig-0.14.0.tar.xz](https://ziglang.org/builds/zig-linux-x86_64-0.14.0.tar.xz)
 
 #### Support OS
 
