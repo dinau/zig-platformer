@@ -18,57 +18,61 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     // Load Icon
-    exe.addWin32ResourceFile(.{ .file = b.path("src/res/res.rc")});
+    exe.addWin32ResourceFile(.{ .file = b.path("src/res/res.rc") });
     //----------------------------------
     // Detect 32bit or 64bit Winddws OS
     //----------------------------------
     const sdl2_Base = "../libs/sdl/SDL2-2.30.9";
-    const sArc:[]const u8 = "x86_64";
-    const sdl2_path = b.fmt("{s}/{s}-w64-mingw32", .{sdl2_Base,sArc});
+    const sArc: []const u8 = "x86_64";
+    const sdl2_path = b.fmt("{s}/{s}-w64-mingw32", .{ sdl2_Base, sArc });
     //---------------
     // Include paths
     //---------------
     //
-    if (builtin.target.os.tag == .windows){
-      exe.addIncludePath(b.path(b.pathJoin(&.{sdl2_path, "include/SDL2"})));
-    }else if (builtin.target.os.tag == .linux){
-      const sdl2_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL2" };
-      exe.addIncludePath(sdl2_inc_path);
+    if (builtin.target.os.tag == .windows) {
+        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_path, "include/SDL2" })));
+    } else if (builtin.target.os.tag == .macos) {
+        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_path, "include/SDL2" })));
+    } else if (builtin.target.os.tag == .linux) {
+        const sdl2_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL2" };
+        exe.addIncludePath(sdl2_inc_path);
     }
     b.installArtifact(exe);
     //------
     // Libs
     //------
-    if (builtin.target.os.tag == .windows){
-      exe.linkSystemLibrary("gdi32");
-      exe.linkSystemLibrary("imm32");
-      exe.linkSystemLibrary("advapi32");
-      exe.linkSystemLibrary("comdlg32");
-      exe.linkSystemLibrary("dinput8");
-      exe.linkSystemLibrary("dxerr8");
-      exe.linkSystemLibrary("dxguid");
-      exe.linkSystemLibrary("gdi32");
-      exe.linkSystemLibrary("hid");
-      exe.linkSystemLibrary("kernel32");
-      exe.linkSystemLibrary("ole32");
-      exe.linkSystemLibrary("oleaut32");
-      exe.linkSystemLibrary("setupapi");
-      exe.linkSystemLibrary("shell32");
-      exe.linkSystemLibrary("user32");
-      exe.linkSystemLibrary("uuid");
-      exe.linkSystemLibrary("version");
-      exe.linkSystemLibrary("winmm");
-      exe.linkSystemLibrary("winspool");
-      exe.linkSystemLibrary("ws2_32");
-      exe.linkSystemLibrary("opengl32");
-      exe.linkSystemLibrary("shell32");
-      exe.linkSystemLibrary("user32");
-      // Static link
-      exe.addObjectFile(b.path(b.pathJoin(&.{sdl2_path, "lib","libSDL2.a"})));
-    }else if (builtin.target.os.tag == .linux){
-      exe.linkSystemLibrary("glfw3");
-      exe.linkSystemLibrary("GL");
-      exe.linkSystemLibrary("sdl2");
+    if (builtin.target.os.tag == .windows) {
+        exe.linkSystemLibrary("gdi32");
+        exe.linkSystemLibrary("imm32");
+        exe.linkSystemLibrary("advapi32");
+        exe.linkSystemLibrary("comdlg32");
+        exe.linkSystemLibrary("dinput8");
+        exe.linkSystemLibrary("dxerr8");
+        exe.linkSystemLibrary("dxguid");
+        exe.linkSystemLibrary("gdi32");
+        exe.linkSystemLibrary("hid");
+        exe.linkSystemLibrary("kernel32");
+        exe.linkSystemLibrary("ole32");
+        exe.linkSystemLibrary("oleaut32");
+        exe.linkSystemLibrary("setupapi");
+        exe.linkSystemLibrary("shell32");
+        exe.linkSystemLibrary("user32");
+        exe.linkSystemLibrary("uuid");
+        exe.linkSystemLibrary("version");
+        exe.linkSystemLibrary("winmm");
+        exe.linkSystemLibrary("winspool");
+        exe.linkSystemLibrary("ws2_32");
+        exe.linkSystemLibrary("opengl32");
+        exe.linkSystemLibrary("shell32");
+        exe.linkSystemLibrary("user32");
+        // Static link
+        exe.addObjectFile(b.path(b.pathJoin(&.{ sdl2_path, "lib", "libSDL2.a" })));
+    } else if (builtin.target.os.tag == .macos) {
+        exe.linkSystemLibrary("sdl2");
+    } else if (builtin.target.os.tag == .linux) {
+        exe.linkSystemLibrary("glfw3");
+        exe.linkSystemLibrary("GL");
+        exe.linkSystemLibrary("sdl2");
     }
 
     // sdl2
