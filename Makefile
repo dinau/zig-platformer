@@ -5,7 +5,14 @@ endif
 PART_NUMS  = 1 2 3 4 5 6 7
 
 all:
+	@echo --------------------
+	@echo    SDL2 Compiling
+	@echo --------------------
 	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl2,part$(exdir),$@))
+	@echo
+	@echo --------------------
+	@echo    SDL3 Compiling
+	@echo --------------------
 	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl3,part$(exdir),$@))
 
 PHONY: clean
