@@ -73,8 +73,11 @@ pub fn build(b: *std.Build) void {
         exe.linkSystemLibrary("opengl32");
         exe.linkSystemLibrary("shell32");
         exe.linkSystemLibrary("user32");
-        // Static link
+        if (true){ // Static link on Windows
         exe.addObjectFile(b.path(b.pathJoin(&.{ sdl2_path, "lib", "libSDL2.a" })));
+        }else{     // Dynamic link on Windows
+          exe.addObjectFile(b.path(b.pathJoin(&.{sdl2_path, "lib","libSDL2.dll.a"})));
+        }
     } else if (builtin.target.os.tag == .macos) {
         exe.linkSystemLibrary("sdl2");
     } else if (builtin.target.os.tag == .linux) {
@@ -84,14 +87,10 @@ pub fn build(b: *std.Build) void {
     }
 
     b.installArtifact(exe);
-    // sdl2
-    //exe.addLibraryPath(b.path(b.pathJoin(&.{sdl2_path, "lib-mingw-64"})));
-    //exe.linkSystemLibrary("SDL2");      // For static link
-    // Dynamic link
-    //exe.addObjectFile(b.path(b.pathJoin(&.{sdl2_path, "lib","libSDL2dll.a"})));
-    //exe.linkSystemLibrary("SDL2dll"); // For dynamic link
     exe.linkLibC();
-    exe.subsystem = .Windows; // Hide console window
+    if (builtin.target.os.tag == .windows) {
+        exe.subsystem = .Windows; // Hide console window
+    }
 
     const resBin = [_][]const u8{
         "mushroom.png",

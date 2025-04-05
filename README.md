@@ -80,13 +80,13 @@ platformer_part3.exe
 
 ---
 
-| Key            | Function |
-| :---:          | :---     |
-| Up,Space, J, K | Jump     |
-| Left, A, H     | Left     |
-| Right, D, L    | Right    |
-| R              | Restart  |
-| Q              | Quit     |
+| Key            | Function  |
+| :---:          | :---      |
+| Up,Space, J, K | Jump      |
+| Left, A, H     | Left      |
+| Right, D, L    | Right     |
+| R              | Restart   |
+| Q              | Quit, Esc |
 
 #### Tutorial sources  
 
@@ -94,12 +94,18 @@ platformer_part3.exe
 
 [platformer_part1](https://github.com/dinau/zig-platformer/blob/main/tutorial/part1/src/main.zig)  
 [platformer_part2](https://github.com/dinau/zig-platformer/blob/main/tutorial/part2/src/main.zig)  
-[platformer_part3](https://github.com/dinau/zig-platformer/blob/main/tutorial/part3/src/main.zig)  
+[platformer_part3](https://github.com/dinau/zig-platformer/blob/main/tutorial/part3/src/main.zig) : Loaded the item image  
 [platformer_part4](https://github.com/dinau/zig-platformer/blob/main/tutorial/part4/src/main.zig)  
 [platformer_part5](https://github.com/dinau/zig-platformer/blob/main/tutorial/part5/src/main.zig) : From here it can move the item with key operation.  
 [platformer_part6](https://github.com/dinau/zig-platformer/blob/main/tutorial/part6/src/main.zig)  
 [platformer_part7](https://github.com/dinau/zig-platformer/blob/main/tutorial/part7/src/main.zig)  
 [platformer_part8]
+
+#### SDL librarys
+
+---
+
+https://github.com/libsdl-org/SDL/releases
 
 #### Other SDL game tutorial platfromer project
 
