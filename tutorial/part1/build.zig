@@ -22,7 +22,7 @@ pub fn build(b: *std.Build) void {
     //----------------------------------
     // Detect 32bit or 64bit Winddws OS
     //----------------------------------
-    const sdl2_Base = "../libs/sdl/SDL2-2.30.9";
+    const sdl2_Base = "../libs/sdl/SDL2";
     const sArc: []const u8 = "x86_64";
     const sdl2_path = b.fmt("{s}/{s}-w64-mingw32", .{ sdl2_Base, sArc });
     //---------------

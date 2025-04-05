@@ -19,7 +19,7 @@ pub fn build(b: *std.Build) void {
     });
     // Load Icon
     exe.addWin32ResourceFile(.{ .file = b.path("src/res/res.rc") });
-    const sdl2_Base = "../libs/sdl/SDL2-2.30.9";
+    const sdl2_Base = "../libs/sdl/SDL2";
     const sdl2_path = b.fmt("{s}/x86_64-w64-mingw32", .{sdl2_Base});
     //---------------
     // Include paths
