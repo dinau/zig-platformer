@@ -5,26 +5,22 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const lib = b.addStaticLibrary(.{
-        .name = "part1",
+        .name = "part2",
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
     b.installArtifact(lib);
     const exe = b.addExecutable(.{
-        .name = "platformer_part1",
+        .name = "platformer_part2",
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
     // Load Icon
     exe.addWin32ResourceFile(.{ .file = b.path("src/res/res.rc") });
-    //----------------------------------
-    // Detect 32bit or 64bit Winddws OS
-    //----------------------------------
-    const sdl2_Base = "../libs/sdl/SDL2";
-    const sArc: []const u8 = "x86_64";
-    const sdl2_path = b.fmt("{s}/{s}-w64-mingw32", .{ sdl2_Base, sArc });
+    const sdl2_base = "../../libs/sdl/SDL2";
+    const sdl2_path = b.fmt("{s}/x86_64-w64-mingw32", .{sdl2_base});
     //---------------
     // Include paths
     //---------------
@@ -81,7 +77,7 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
     exe.linkLibC();
     if (builtin.target.os.tag == .windows) {
-    //exe.subsystem = .Windows;  // Hide console window
+        //exe.subsystem = .Windows;  // Hide console window
     }
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());

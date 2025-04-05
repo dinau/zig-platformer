@@ -5,26 +5,25 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const lib = b.addStaticLibrary(.{
-        .name = "part4",
+        .name = "part1",
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
     b.installArtifact(lib);
     const exe = b.addExecutable(.{
-        .name = "platformer_part4",
+        .name = "platformer_part1",
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
     // Load Icon
     exe.addWin32ResourceFile(.{ .file = b.path("src/res/res.rc") });
-    const sdl2_Base = "../libs/sdl/SDL2";
-    const sdl2_path = b.fmt("{s}/x86_64-w64-mingw32", .{sdl2_Base});
+    const sdl2_base = "../../libs/sdl/SDL2";
+    const sdl2_path = b.fmt("{s}/x86_64-w64-mingw32", .{sdl2_base});
     //---------------
     // Include paths
     //---------------
-    exe.addIncludePath(b.path("../libs/stb"));
     //
     if (builtin.target.os.tag == .windows) {
         exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_path, "include/SDL2" })));
@@ -34,18 +33,7 @@ pub fn build(b: *std.Build) void {
         const sdl2_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL2" };
         exe.addIncludePath(sdl2_inc_path);
     }
-    //---------------
-    // Sources C/C++
-    //---------------
-    exe.addCSourceFiles(.{
-        .files = &.{
-            "../libs/stb/stb_impl.c",
-        },
-        .flags = &.{
-            "-O2",
-        },
-    });
-
+    b.installArtifact(exe);
     //------
     // Libs
     //------
@@ -89,19 +77,8 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
     exe.linkLibC();
     if (builtin.target.os.tag == .windows) {
-     //exe.subsystem = .Windows; // Hide console window
+    //exe.subsystem = .Windows;  // Hide console window
     }
-
-    const resBin = [_][]const u8{
-        "mushroom.png",
-        "grass.png",
-        "default.map",
-    };
-    inline for (resBin) |file| {
-        const res = b.addInstallFile(b.path("../" ++ file), "bin/" ++ file);
-        b.getInstallStep().dependOn(&res.step);
-    }
-
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
     if (b.args) |args| {

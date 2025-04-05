@@ -10,6 +10,7 @@ all:
 	@echo
 	@echo === $(TARGET) ===  zig-$(ZIG_VER)
 	zig build --release=fast
+	@-strip zig-out/bin/$(TARGET)$(EXE)
 
 run: all
 	(cd zig-out/bin; ./$(TARGET)$(EXE))

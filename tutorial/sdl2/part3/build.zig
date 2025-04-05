@@ -5,29 +5,27 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const lib = b.addStaticLibrary(.{
-        .name = "part2",
+        .name = "part3",
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
     b.installArtifact(lib);
     const exe = b.addExecutable(.{
-        .name = "platformer_part2",
+        .name = "platformer_part3",
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
     // Load Icon
     exe.addWin32ResourceFile(.{ .file = b.path("src/res/res.rc") });
-    //----------------------------------
-    // Detect 32bit or 64bit Winddws OS
-    //----------------------------------
-    const sdl2_Base = "../libs/sdl/SDL2";
-    const sArc: []const u8 = "x86_64";
-    const sdl2_path = b.fmt("{s}/{s}-w64-mingw32", .{ sdl2_Base, sArc });
+    const sdl2_base = "../../libs/sdl/SDL2";
+    const sdl2_path = b.fmt("{s}/x86_64-w64-mingw32", .{sdl2_base});
+    const stb_base = "../../libs/stb";
     //---------------
     // Include paths
     //---------------
+    exe.addIncludePath(b.path("../../libs/stb"));
     //
     if (builtin.target.os.tag == .windows) {
         exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_path, "include/SDL2" })));
@@ -37,7 +35,18 @@ pub fn build(b: *std.Build) void {
         const sdl2_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL2" };
         exe.addIncludePath(sdl2_inc_path);
     }
-    b.installArtifact(exe);
+    //---------------
+    // Sources C/C++
+    //---------------
+    exe.addCSourceFiles(.{
+        .files = &.{
+            b.pathJoin(&.{stb_base,"stb_impl.c"}),
+        },
+        .flags = &.{
+            "-O2",
+        },
+    });
+
     //------
     // Libs
     //------
@@ -83,6 +92,15 @@ pub fn build(b: *std.Build) void {
     if (builtin.target.os.tag == .windows) {
         //exe.subsystem = .Windows;  // Hide console window
     }
+
+    const resBin = [_][]const u8{
+        "mushroom.png",
+    };
+    inline for (resBin) |file| {
+        const res = b.addInstallFile(b.path("../../" ++ file), "bin/" ++ file);
+        b.getInstallStep().dependOn(&res.step);
+    }
+
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
     if (b.args) |args| {
