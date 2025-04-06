@@ -2,10 +2,13 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Zig-Platformer](#zig-platformer)
+- [Prerequisites](#prerequisites)
+  - [Zig version](#zig-version)
   - [Support OS](#support-os)
   - [Build and run](#build-and-run)
   - [Key operation](#key-operation)
   - [Tutorial sources](#tutorial-sources)
+  - [SDL librarys](#sdl-librarys)
   - [Other SDL game tutorial platfromer project](#other-sdl-game-tutorial-platfromer-project)
   - [Other project](#other-project)
 
@@ -21,7 +24,7 @@
 
 Now work in progress.
 
-Tutorial: Writing a 2D Platform Game in [Zig language](https://ziglang.org) with SDL2.
+Tutorial: Writing a 2D Platform Game in [Zig language](https://ziglang.org) with SDL2 / SDL3.
 
 This repository has been inherited from
 [Nim-Platformer](https://github.com/def-/nim-platformer), [LuaJIT-Platformer](https://github.com/dinau/luajit-platformer) and [Nelua-Platformer](https://github.com/dinau/nelua-platformer)  project.
@@ -52,29 +55,32 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
   $ sudo apt install xorg-dev libopengl-dev libgl1-mesa-dev
   $ sudo apt install libsdl2-dev
   ```
+- MacOS: [P.R.](https://github.com/dinau/zig-platformer/pull/1)
 
-#### Build and run
+#### Build and run 
 
 ---
 
 ```sh
 git clone https://github.com/dinau/zig-platformer
-cd zig-platformer
+cd zig-platformer/tutorial
 ```
 For instance,
 
 ```sh
-cd part3
+cd sdl2/part3
 make run       
 ```
 or 
 
 ```sh
-cd part3
+cd sdl2/part3
 zig build --release=fast
 cd zig-out/bin 
 platformer_part3.exe
 ```
+
+You can build [SDL3](tutorial/sdl3) tutorials same as SDL2.
 
 #### Key operation
 
@@ -92,14 +98,30 @@ platformer_part3.exe
 
 ---
 
-[platformer_part1](https://github.com/dinau/zig-platformer/blob/main/tutorial/part1/src/main.zig)  
-[platformer_part2](https://github.com/dinau/zig-platformer/blob/main/tutorial/part2/src/main.zig)  
-[platformer_part3](https://github.com/dinau/zig-platformer/blob/main/tutorial/part3/src/main.zig) : Loaded the item image  
-[platformer_part4](https://github.com/dinau/zig-platformer/blob/main/tutorial/part4/src/main.zig)  
-[platformer_part5](https://github.com/dinau/zig-platformer/blob/main/tutorial/part5/src/main.zig) : From here it can move the item with key operation.  
-[platformer_part6](https://github.com/dinau/zig-platformer/blob/main/tutorial/part6/src/main.zig)  
-[platformer_part7](https://github.com/dinau/zig-platformer/blob/main/tutorial/part7/src/main.zig)  
-[platformer_part8]
+[sdl2p1]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl2/part1
+[sdl2p2]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl2/part2
+[sdl2p3]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl2/part3
+[sdl2p4]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl2/part4
+[sdl2p5]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl2/part5
+[sdl2p6]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl2/part6
+[sdl2p7]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl2/part7
+[sdl2p8]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl2/part8
+[sdl2p9]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl2/part9
+
+[sdl3p1]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part1
+[sdl3p2]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part2
+[sdl3p3]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part3
+[sdl3p4]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part4
+[sdl3p5]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part5
+[sdl3p6]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part6
+[sdl3p7]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part7
+[sdl3p8]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part8
+[sdl3p9]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part9
+
+|      | Part1           | Part2           | Part3<br> (Showing item) | Part4           | Part5 <br>(Moving item) | Part6           | Part7           | Part8 | Part9 |
+|------|-----------------|-----------------|----------------------|-----------------|---------------------|-----------------|-----------------|-------|-------|
+| SDL2 | [part1][sdl2p1] | [part2][sdl2p2] | [part3][sdl2p3]      | [part4][sdl2p4] | [part5][sdl2p5]     | [part6][sdl2p6] | [part7][sdl2p7] | WIP   | WIP   |
+| SDL3 | [part1][sdl3p1] | [part2][sdl3p2] | [part3][sdl3p3]      | [part4][sdl3p4] | [part5][sdl3p5]     | [part6][sdl3p6] | [part7][sdl3p7] | WIP   | WIP   |
 
 #### SDL librarys
 

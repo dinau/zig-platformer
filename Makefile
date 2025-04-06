@@ -4,22 +4,34 @@ endif
 
 PART_NUMS  = 1 2 3 4 5 6 7
 
-all:
+PHONY: clean sdl2 sdl3 sdl2_clean sdl3_clean
+
+all: sdl2 sdl3
+
+sdl2:
 	@echo --------------------
-	@echo    SDL2 Compiling
+	@echo    SDL2 compiling
 	@echo --------------------
-	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl2,part$(exdir),$@))
+	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl2,part$(exdir),all))
+
+sdl3:
 	@echo
 	@echo --------------------
-	@echo    SDL3 Compiling
+	@echo    SDL3 compiling
 	@echo --------------------
-	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl3,part$(exdir),$@))
+	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl3,part$(exdir),all))
 
-PHONY: clean
+sdl2_clean:
+	@echo --------------------
+	@echo    SDL2 cleaning
+	@echo --------------------
+	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl2,part$(exdir),clean))
 
-clean:
-	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl2,part$(exdir),$@))
-	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl3,part$(exdir),$@))
+sdl3_clean:
+	@echo --------------------
+	@echo    SDL3 cleaning
+	@echo --------------------
+	$(foreach exdir,$(PART_NUMS), $(call def_make_sdl3,part$(exdir),clean))
 
 
 define def_make_sdl2

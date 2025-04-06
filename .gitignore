@@ -2,3 +2,4 @@
 zig-out/
 .ccache/
 test/
+*.html

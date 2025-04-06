@@ -5,14 +5,14 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const lib = b.addStaticLibrary(.{
-        .name = "part1",
+        .name = "part2",
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
     b.installArtifact(lib);
     const exe = b.addExecutable(.{
-        .name = "platformer_part1",
+        .name = "platformer_part2",
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,

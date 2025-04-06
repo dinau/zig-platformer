@@ -21,5 +21,6 @@ fmt:
 	zig fmt src/main.zig
 
 clean:
+	@echo Clean: $(CURDIR)
 	@-rm -rf .zig-cache zig.cache
 	@-rm -rf zig-out

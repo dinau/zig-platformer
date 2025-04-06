@@ -5,14 +5,14 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const lib = b.addStaticLibrary(.{
-        .name = "part1",
+        .name = "part7",
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
     b.installArtifact(lib);
     const exe = b.addExecutable(.{
-        .name = "platformer_part1",
+        .name = "platformer_part7",
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
@@ -21,9 +21,11 @@ pub fn build(b: *std.Build) void {
     exe.addWin32ResourceFile(.{ .file = b.path("src/res/res.rc") });
     const sdl_base = "../../libs/sdl/SDL3";
     const sdl_path = sdl_base ++ "/" ++ "x86_64-w64-mingw32";
+    const stb_base = "../../libs/stb";
     //---------------
     // Include paths
     //---------------
+    exe.addIncludePath(b.path(stb_base));
     //
     if (builtin.target.os.tag == .windows) {
         exe.addIncludePath(b.path(b.pathJoin(&.{ sdl_path, "include/SDL3" })));
@@ -34,7 +36,18 @@ pub fn build(b: *std.Build) void {
         const sdl_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL3" };
         exe.addIncludePath(sdl_inc_path);
     }
-    b.installArtifact(exe);
+    //---------------
+    // Sources C/C++
+    //---------------
+    exe.addCSourceFiles(.{
+        .files = &.{
+            b.pathJoin(&.{stb_base,"stb_impl.c"}),
+        },
+        .flags = &.{
+            "-O2",
+        },
+    });
+
     //------
     // Libs
     //------
@@ -78,7 +91,20 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
     exe.linkLibC();
     if (builtin.target.os.tag == .windows) {
-    //exe.subsystem = .Windows;  // Hide console window
+        exe.subsystem = .Windows;  // Hide console window
+    }
+
+    const TRes= struct {file:[]const u8, dir:[]const u8};
+    const dir_tutorial = "../../";
+    const resBin = [_]TRes{
+        TRes{.file = "mushroom.png", .dir = dir_tutorial},
+        TRes{.file = "grass.png",    .dir = dir_tutorial},
+        TRes{.file = "default.map",  .dir = dir_tutorial},
+    };
+
+    inline for (resBin) |res| {
+        const resource = b.addInstallFile(b.path(res.dir ++ res.file), "bin/" ++ res.file);
+        b.getInstallStep().dependOn(&resource.step);
     }
 
     if (builtin.target.os.tag == .windows) {
