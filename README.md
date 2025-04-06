@@ -47,6 +47,11 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
 ---
 
+|      | Windows | Linux | MacOS |
+| ---  | :---:   | :---: | :---: |
+| SDL2 | v       | v     | v     |
+| SDL3 | v       | -     | -     |
+
 - Windows10 or later  
    - MSys2/MinGW basic commands (make, rm, cp, strip ...)
 - Linux: Debian families
