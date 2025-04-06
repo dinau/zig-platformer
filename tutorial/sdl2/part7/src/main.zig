@@ -532,7 +532,7 @@ pub fn main() !void {
         while (n <= newTick) : (n += 1) {
             physics(&game);
             moveCamera(&game);
-            try logic(alloc, &game, n);
+            try logic(alloc, &game, @intCast(n));
         }
         lastTick = newTick;
         render(&game);
