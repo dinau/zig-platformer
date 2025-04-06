@@ -4,7 +4,7 @@ endif
 
 PART_NUMS  = 1 2 3 4 5 6 7
 
-PHONY: clean sdl2 sdl3 sdl2_clean sdl3_clean
+PHONY: sdl2 sdl3 sdl2_clean sdl3_clean
 
 all: sdl2 sdl3
 
