@@ -90,7 +90,7 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
     exe.linkLibC();
     if (builtin.target.os.tag == .windows) {
-    exe.subsystem = .Windows; // Hide console window
+      //exe.subsystem = .Windows; // Hide console window
     }
 
     const resBin = [_][]const u8{

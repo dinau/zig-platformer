@@ -271,10 +271,10 @@ fn handleInput(self: *Game) void {
 //--- formatTime
 //---------------
 fn formatTime(alloc:std.mem.Allocator, ticks: i32) ![]u8 {
-  const mins:i32  = @divFloor(@divFloor(ticks , 50) , 60);
-  const secs:i32  = @rem(@divFloor(ticks , 50) , 60);
-  const cents:i32 = @rem(@divFloor(ticks , 50) , 2);
-  return std.fmt.allocPrint(alloc, "{d}:{d}:{d}", .{mins, secs, cents});
+  const mins:u32  = @intCast(@divFloor(@divFloor(ticks , 50) , 60));
+  const secs:u32  = @intCast(@rem(@divFloor(ticks , 50) , 60));
+  const cents:u32 = @intCast(@rem(@divFloor(ticks , 50) , 100));
+  return std.fmt.allocPrint(alloc, "{d:02}:{d:02}:{d:02}", .{mins, secs, cents});
 }
 
 //---------------
@@ -289,15 +289,19 @@ fn getTileVec(map: Map, pos: Vec2f) u8{
 //----------
 fn logic(alloc: std.mem.Allocator, self: *Game,tick: i32) !void {
   switch (getTileVec(self.map, self.player.pos)) {
-    start => self.player.time.begin = tick,
+    start => { self.player.time.begin = tick;
+               //std.debug.print("{s}",.{"\nStart"});
+              },
     finish => {
       if(self.player.time.begin >= 0){
         self.player.time.finish = tick - self.player.time.begin;
         self.player.time.begin = -1;
         if(self.player.time.best < 0 or self.player.time.finish < self.player.time.best){
            self.player.time.best = self.player.time.finish;
+            //std.debug.print("{s}",.{"\nBest time"});
         }
-        std.debug.print("{s}",.{try formatTime(alloc, self.player.time.finish)});
+        //std.debug.print("{s}",.{"\nFinish"});
+        std.debug.print("\n{s}",.{try formatTime(alloc, self.player.time.finish)});
       }
     },
     else => {}
