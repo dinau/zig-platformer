@@ -26,8 +26,8 @@ const Game = struct {
     camera: ig.SDL_FPoint,
 };
 
-const MainWinWidth: i32 = 1024;
-const MainWinHeight: i32 = 800;
+const MainWinWidth: i32 = 1280;
+const MainWinHeight: i32 = 720;
 
 //---------
 //-- write

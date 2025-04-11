@@ -6,19 +6,22 @@ endif
 
 ZIG_VER = $(shell zig version)
 
+OPT += --release=fast
+
 all:
 	@echo
 	@echo === $(TARGET) ===  zig-$(ZIG_VER)
-	zig build --release=fast
+	zig build $(OPT)
 	@-strip zig-out/bin/$(TARGET)$(EXE)
 
 run: all
 	(cd zig-out/bin; ./$(TARGET)$(EXE))
 
-.PHONY: fmt
+.PHONY: fmt clean run
 
 fmt:
 	zig fmt src/main.zig
+	zig fmt build.zig
 
 clean:
 	@echo Clean: $(CURDIR)

@@ -36,8 +36,8 @@ const Game = struct {
 const TilesPerRow = 16;
 const TileSize   = vec2i(64, 64);
 
-const MainWinWidth: i32 = 1024;
-const MainWinHeight: i32 = 800;
+const MainWinWidth: i32 = 1280;
+const MainWinHeight: i32 = 720;
 
 //---------
 //-- write

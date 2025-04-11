@@ -19,27 +19,26 @@ pub fn build(b: *std.Build) void {
     });
     // Load Icon
     exe.addWin32ResourceFile(.{ .file = b.path("src/res/res.rc") });
-    const sdl2_base     = "../../libs/sdl/SDL2";
-    const sdl2_ttf_base = "../../libs/sdl/SDL2_ttf";
-    const sdl2_path     = sdl2_base ++ "/" ++ "x86_64-w64-mingw32";
-    const sdl2_ttf_path = sdl2_ttf_base;
+    const sdl_base      = "../../libs/sdl/SDL3";
+    const sdl_ttf_base  = "../../libs/sdl/SDL3_ttf";
+    const sdl_path      = sdl_base     ++ "/" ++ "x86_64-w64-mingw32";
+    const sdl_ttf_path  = sdl_ttf_base ++ "/" ++ "x86_64-w64-mingw32";
     const stb_base = "../../libs/stb";
     //---------------
     // Include paths
     //---------------
-    exe.addIncludePath(b.path("../../libs/stb"));
+    exe.addIncludePath(b.path(stb_base));
     //
     if (builtin.target.os.tag == .windows) {
-        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_path,     "include/SDL2" })));
-        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_ttf_path, "include" })));
+        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl_path, "include/SDL3" })));
+        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl_path, "include" })));
+        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl_ttf_path, "include/SDL3_ttf" })));
+        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl_ttf_path, "include" })));
     } else if (builtin.target.os.tag == .macos) {
-        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_path,     "include/SDL2" })));
-        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_ttf_path, "include" })));
+        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl_path, "include/SDL3" })));
     } else if (builtin.target.os.tag == .linux) {
-        const sdl2_inc_path: std.Build.LazyPath =     .{ .cwd_relative = "/usr/include/SDL2" };
-        exe.addIncludePath(sdl2_inc_path);
-        const sdl2_ttf_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL2_ttf" };
-        exe.addIncludePath(sdl2_ttf_inc_path);
+        const sdl_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL3" };
+        exe.addIncludePath(sdl_inc_path);
     }
     //---------------
     // Sources C/C++
@@ -81,47 +80,47 @@ pub fn build(b: *std.Build) void {
         exe.linkSystemLibrary("shell32");
         exe.linkSystemLibrary("user32");
         if (false){ // Static link on Windows
-          exe.addObjectFile(b.path(b.pathJoin(&.{ sdl2_path,     "lib", "libSDL2.a" })));
-          exe.addObjectFile(b.path(b.pathJoin(&.{ sdl2_ttf_path, "lib", "x64", "SDL2_ttf.lib" })));
+          exe.addObjectFile(b.path(b.pathJoin(&.{ sdl_path,    "lib", "libSDL3.a" })));
         }else{     // Dynamic link on Windows
-          exe.addObjectFile(b.path(b.pathJoin(&.{sdl2_path,     "lib","libSDL2.dll.a"})));
-          exe.addObjectFile(b.path(b.pathJoin(&.{sdl2_ttf_path, "lib", "x64", "SDL2_ttf.lib"})));
+          exe.addObjectFile(b.path(b.pathJoin(&.{sdl_path,     "lib","libSDL3.dll.a"})));
+          exe.addObjectFile(b.path(b.pathJoin(&.{sdl_ttf_path, "lib","libSDL3_ttf.dll.a"})));
         }
     } else if (builtin.target.os.tag == .macos) {
-        exe.linkSystemLibrary("sdl2");
-        exe.linkSystemLibrary("sdl2_ttf"); // TODO ?
+        exe.linkSystemLibrary("sdl");
     } else if (builtin.target.os.tag == .linux) {
         exe.linkSystemLibrary("glfw3");
         exe.linkSystemLibrary("GL");
-        exe.linkSystemLibrary("sdl2");
-        exe.linkSystemLibrary("sdl2_ttf"); // TODO ?
+        exe.linkSystemLibrary("sdl");
     }
 
     b.installArtifact(exe);
     exe.linkLibC();
     if (builtin.target.os.tag == .windows) {
-        exe.subsystem = .Windows; // Hide console window
+        exe.subsystem = .Windows;  // Hide console window
     }
 
-    const resBin = [_][]const u8{
-        "mushroom.png",
-        "grass.png",
-        "default.map",
-        "DejaVuSans.ttf",
+    const TRes= struct {file:[]const u8, dir:[]const u8};
+    const dir_tutorial = "../../";
+    const resBin = [_]TRes{
+        TRes{.file = "mushroom.png",   .dir = dir_tutorial},
+        TRes{.file = "grass.png",      .dir = dir_tutorial},
+        TRes{.file = "default.map",    .dir = dir_tutorial},
+        TRes{.file = "DejaVuSans.ttf", .dir = dir_tutorial},
     };
-    inline for (resBin) |file| {
-        const res = b.addInstallFile(b.path("../../" ++ file), "bin/" ++ file);
-        b.getInstallStep().dependOn(&res.step);
+
+    inline for (resBin) |res| {
+        const resource = b.addInstallFile(b.path(res.dir ++ res.file), "bin/" ++ res.file);
+        b.getInstallStep().dependOn(&resource.step);
     }
 
     // Copy *.dll to bin folder
     if (builtin.target.os.tag == .windows) {
-        const sdl_dll = "SDL2.dll";
-        var res = b.addInstallFile(b.path(sdl2_path ++ "/bin/"  ++ sdl_dll), "bin/" ++ sdl_dll);
-        b.getInstallStep().dependOn(&res.step);
-        const ttf_dll = "SDL2_ttf.dll";
-        res = b.addInstallFile(b.path(sdl2_ttf_path ++ "/lib/x64/"  ++ ttf_dll), "bin/" ++ ttf_dll);
-        b.getInstallStep().dependOn(&res.step);
+      const sdl3_dll = "SDL3.dll";
+      var resource = b.addInstallFile(b.path(sdl_path ++ "/bin/" ++ sdl3_dll), "bin/" ++  sdl3_dll);
+      b.getInstallStep().dependOn(&resource.step);
+      const sdl3_ttf_dll = "SDL3_ttf.dll";
+      resource = b.addInstallFile(b.path(sdl_ttf_path ++ "/bin/" ++ sdl3_ttf_dll), "bin/" ++  sdl3_ttf_dll);
+      b.getInstallStep().dependOn(&resource.step);
     }
 
     const run_cmd = b.addRunArtifact(exe);

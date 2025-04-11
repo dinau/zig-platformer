@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  linux_nightly:
+  linux_release:
 
     runs-on: ubuntu-latest
 

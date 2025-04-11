@@ -1,12 +1,9 @@
 ifeq ($(OS),Windows_NT)
 	EXE = .exe
-PHONY: sdl2 sdl3 sdl2_clean sdl3_clean
-else
-PHONY: sdl2 sdl2_clean
 endif
 
 PART_NUMS_SDL2  = 1 2 3 4 5 6 7 8
-PART_NUMS_SDL3  = 1 2 3 4 5 6 7
+PART_NUMS_SDL3  = 1 2 3 4 5 6 7 8
 
 all: sdl2 sdl3
 
@@ -16,6 +13,12 @@ sdl2:
 	@echo --------------------
 	$(foreach exdir,$(PART_NUMS_SDL2), $(call def_make_$@,part$(exdir),all))
 
+sdl2_clean:
+	@echo --------------------
+	@echo    SDL2 cleaning
+	@echo --------------------
+	$(foreach exdir,$(PART_NUMS_SDL2), $(call def_make_sdl2,part$(exdir),clean))
+
 ifeq ($(OS),Windows_NT)
 sdl3:
 	@echo
@@ -24,21 +27,15 @@ sdl3:
 	@echo    $@ compiling
 	@echo --------------------
 	$(foreach exdir,$(PART_NUMS_SDL3), $(call def_make_$@,part$(exdir),all))
-endif
 
-sdl2_clean:
-	@echo --------------------
-	@echo    SDL2 cleaning
-	@echo --------------------
-	$(foreach exdir,$(PART_NUMS_SDL2), $(call def_make_sdl2,part$(exdir),clean))
-
-ifeq ($(OS),Windows_NT)
 sdl3_clean:
 	@echo --------------------
 	@echo    SDL3 cleaning
 	@echo --------------------
 	$(foreach exdir,$(PART_NUMS_SDL3), $(call def_make_sdl3,part$(exdir),clean))
 endif
+
+clean: sdl2_clean sdl3_clean
 
 define def_make_sdl2
 	@$(MAKE) -C tutorial/sdl2/$(1) $(2)

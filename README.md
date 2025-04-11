@@ -58,7 +58,7 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
   ```sh
   $ sudo apt install xorg-dev libopengl-dev libgl1-mesa-dev
-  $ sudo apt install libsdl2-dev
+  $ sudo apt install libsdl2-dev libsdl2-ttf-dev
   ```
 - MacOS: [P.R.](https://github.com/dinau/zig-platformer/pull/1)
 
@@ -123,10 +123,10 @@ You can build [SDL3](tutorial/sdl3) tutorials same as SDL2.
 [sdl3p8]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part8
 [sdl3p9]:https://github.com/dinau/zig-platformer/blob/main/tutorial/sdl3/part9
 
-|      | Part1           | Part2           | Part3<br> (Showing item) | Part4           | Part5 <br>(Moving item) | Part6           | Part7           | Part8                 | Part9 |
-|------|-----------------|-----------------|--------------------------|-----------------|-------------------------|-----------------|-----------------|-----------------------|-------|
-| SDL2 | [part1][sdl2p1] | [part2][sdl2p2] | [part3][sdl2p3]          | [part4][sdl2p4] | [part5][sdl2p5]         | [part6][sdl2p6] | [part7][sdl2p7] | [part8][sdl2p8] (WIP) | WIP   |
-| SDL3 | [part1][sdl3p1] | [part2][sdl3p2] | [part3][sdl3p3]          | [part4][sdl3p4] | [part5][sdl3p5]         | [part6][sdl3p6] | [part7][sdl3p7] | WIP                   | WIP   |
+|      | Part1           | Part2           | Part3<br> (Showing item) | Part4           | Part5 <br>(Moving item) | Part6           | Part7           | Part8<br>(Almost completed) | Part9 |
+|------|-----------------|-----------------|--------------------------|-----------------|-------------------------|-----------------|-----------------|-----------------------------|-------|
+| SDL2 | [part1][sdl2p1] | [part2][sdl2p2] | [part3][sdl2p3]          | [part4][sdl2p4] | [part5][sdl2p5]         | [part6][sdl2p6] | [part7][sdl2p7] | [part8][sdl2p8]             | -     |
+| SDL3 | [part1][sdl3p1] | [part2][sdl3p2] | [part3][sdl3p3]          | [part4][sdl3p4] | [part5][sdl3p5]         | [part6][sdl3p6] | [part7][sdl3p7] | [part8][sdl3p8]             | -     |
 
 #### SDL librarys
 
