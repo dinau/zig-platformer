@@ -93,8 +93,8 @@ pub fn build(b: *std.Build) void {
     } else if (builtin.target.os.tag == .linux) {
         exe.linkSystemLibrary("glfw3");
         exe.linkSystemLibrary("GL");
-        exe.linkSystemLibrary("sdl2");
-        exe.linkSystemLibrary("sdl2_ttf"); // TODO ?
+        exe.linkSystemLibrary("SDL2");
+        exe.linkSystemLibrary("SDL2_ttf");
     }
 
     b.installArtifact(exe);
