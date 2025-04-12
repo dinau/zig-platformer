@@ -1,11 +1,11 @@
-ifeq ($(OS),Windows_NT)
-	EXE = .exe
-endif
-
 PART_NUMS_SDL2  = 1 2 3 4 5 6 7 8
 PART_NUMS_SDL3  = 1 2 3 4 5 6 7 8
 
+ifeq ($(OS),Windows_NT)
 all: sdl2 sdl3
+else
+all: sdl2
+endif
 
 sdl2:
 	@echo --------------------
@@ -35,7 +35,11 @@ sdl3_clean:
 	$(foreach exdir,$(PART_NUMS_SDL3), $(call def_make_sdl3,part$(exdir),clean))
 endif
 
+ifeq ($(OS),Windows_NT)
 clean: sdl2_clean sdl3_clean
+else
+clean: sdl2_clean
+endif
 
 define def_make_sdl2
 	@$(MAKE) -C tutorial/sdl2/$(1) $(2)
