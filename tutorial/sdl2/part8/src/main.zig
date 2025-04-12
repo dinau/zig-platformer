@@ -642,7 +642,4 @@ pub fn main() !void {
         lastTick = newTick;
         try render(alloc, &game, @intCast(lastTick));
     }
-
-    ig.SDL_GL_SwapWindow(window);
-    ig.SDL_ShowWindow(window);
 }

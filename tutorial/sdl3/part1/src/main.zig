@@ -51,7 +51,4 @@ pub fn main() !void {
     }
 
     std.debug.print("\n{s}", .{"Part1 is OK"});
-
-    _ = ig.SDL_GL_SwapWindow(window);
-    _ = ig.SDL_ShowWindow(window);
 }

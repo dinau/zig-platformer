@@ -325,7 +325,4 @@ pub fn main() !void {
         handleInput(&game);
         render(&game);
     }
-
-    _ = ig.SDL_GL_SwapWindow(window);
-    _ = ig.SDL_ShowWindow(window);
 }

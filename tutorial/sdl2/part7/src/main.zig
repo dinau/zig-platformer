@@ -541,7 +541,4 @@ pub fn main() !void {
         lastTick = newTick;
         render(&game);
     }
-
-    ig.SDL_GL_SwapWindow(window);
-    ig.SDL_ShowWindow(window);
 }

@@ -22,7 +22,7 @@
 ![alt](https://github.com/dinau/zig-platformer/actions/workflows/linux.yml/badge.svg)
 ![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel_linux.yml/badge.svg)
 
-Tutorial: Writing a 2D Platform Game in [Zig language](https://ziglang.org) with SDL2 / SDL3.
+Tutorial: Writing a 2D Platform Game in [Zig language](https://ziglang.org) with SDL2 / SDL3 / SDL_ttf.
 
 This repository has been inherited from
 [Nim-Platformer](https://github.com/def-/nim-platformer), [LuaJIT-Platformer](https://github.com/dinau/luajit-platformer) and [Nelua-Platformer](https://github.com/dinau/nelua-platformer)  project.
@@ -145,8 +145,9 @@ https://github.com/libsdl-org/SDL/releases
 | **Nim**              | Compiler | [Nim-Platformer](https://github.com/dinau/nim-platformer) / [sdl3_nim](https://github.com/dinau/sdl3_nim) |
 | **LuaJIT**           | Script   | [LuaJIT-Platformer](https://github.com/dinau/luajit-platformer)                                           |
 | **Nelua**            | Compiler | [NeLua-Platformer](https://github.com/dinau/nelua-platformer)                                             |
-| **Zig**              | Compiler | [Zig-Platformer](https://github.com/dinau/zig-platformer) WIP                                             |
+| **Zig**              | Compiler | [Zig-Platformer](https://github.com/dinau/zig-platformer)                                                 |
 | **C3**               | Compiler | [C3-Platformer](https://github.com/dinau/c3-platformer) WIP                                               |
+| **Ruby**             | Script   | [Ruby-Platformer](https://github.com/dinau/ruby-platformer) WIP                                               |
 
 #### Other project
 
@@ -160,3 +161,4 @@ https://github.com/libsdl-org/SDL/releases
 | **Zig**              | Compiler | [ImGuinZ](https://github.com/dinau/imguinz)                                                                                                     |
 | **NeLua**            | Compiler | [NeLuaImGui](https://github.com/dinau/neluaImGui)                                                                                               |
 | **Python**           | Script   | [DearPyGui for 32bit WindowsOS Binary](https://github.com/dinau/DearPyGui32/tree/win32)                                                         |
+| **Ruby**             | Script   | [IgRuby-Examples](https://github.com/dinau/igruby_examples)

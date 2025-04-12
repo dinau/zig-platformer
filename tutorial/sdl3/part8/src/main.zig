@@ -659,7 +659,4 @@ pub fn main() !void {
         lastTick = newTick;
         try render(alloc, &game, lastTick);
     }
-
-    _ = ig.SDL_GL_SwapWindow(window);
-    _ = ig.SDL_ShowWindow(window);
 }
