@@ -244,7 +244,7 @@ pub fn main() !void {
 
     var w: c_int = undefined;
     var h: c_int = undefined;
-    const fname: [*c]const u8 = "mushroom.png";
+    const fname: [*c]const u8 = "bob.png";
     const texture = loadTextureFromFile(fname, renderer, &w, &h).?;
     defer ig.SDL_DestroyTexture(texture);
     var game = newGame(renderer, texture);

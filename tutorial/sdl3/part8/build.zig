@@ -102,7 +102,7 @@ pub fn build(b: *std.Build) void {
     const TRes= struct {file:[]const u8, dir:[]const u8};
     const dir_tutorial = "../../";
     const resBin = [_]TRes{
-        TRes{.file = "mushroom.png",   .dir = dir_tutorial},
+        TRes{.file = "bob.png",   .dir = dir_tutorial},
         TRes{.file = "grass.png",      .dir = dir_tutorial},
         TRes{.file = "default.map",    .dir = dir_tutorial},
         TRes{.file = "DejaVuSans.ttf", .dir = dir_tutorial},
