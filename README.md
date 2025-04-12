@@ -32,6 +32,8 @@ This repository has been inherited from
 
 Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
+![alt](img/zig-platformer-sdl3.gif)
+
 ### Prerequisites
 
 #### Zig version
