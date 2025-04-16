@@ -42,6 +42,7 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
 - [x] Windows:  [zig-0.14.0.zip](https://ziglang.org/builds/zig-windows-x86_64-0.14.0.zip) (2025/03)  
 - [x] Linux Debian families: [zig-0.14.0.tar.xz](https://ziglang.org/builds/zig-linux-x86_64-0.14.0.tar.xz)
+- [x] [zig-0.15.0-dev](https://ziglang.org/download)
 
 #### Support OS
 
