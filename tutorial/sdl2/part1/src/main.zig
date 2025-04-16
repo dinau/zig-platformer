@@ -1,7 +1,5 @@
 const std = @import("std");
-const ig = @cImport({
-    @cInclude("SDL.h");
-});
+const ig = @import("sdl");
 
 const MainWinWidth: i32 = 1280;
 const MainWinHeight: i32 = 720;

@@ -1,8 +1,5 @@
 const std = @import("std");
-const ig = @cImport({
-    @cDefine("SDL_ENABLE_OLD_NAMES","");
-    @cInclude("SDL.h");
-});
+const ig = @import("sdl");
 
 const RendererPtr = *ig.SDL_Renderer;
 
@@ -53,7 +50,7 @@ fn toInput(key: u32) usize {
 //------------
 //--- newGame   -- Game type
 //------------
-fn newGame(renderer: *ig.SDL_Renderer) Game {
+fn newGame(renderer: RendererPtr) Game {
     return Game{
         .renderer = renderer,
         .inputs = [6]bool{ false, false, false, false, false, false },
@@ -67,12 +64,12 @@ fn handleInput(self: *Game) void {
     var event: ig.SDL_Event = undefined;
     while (ig.SDL_PollEvent(&event)) {
         const kind = event.type;
-        if (kind == ig.SDL_QUIT) {
+        if (kind == ig.SDL_EVENT_QUIT) {
             self.inputs[@intFromEnum(Input.quit)] = true;
-        } else if (kind == ig.SDL_KEYDOWN) {
+        } else if (kind == ig.SDL_EVENT_KEY_DOWN) {
             write("\n[KeyDown]");
             self.inputs[toInput(event.key.scancode)] = true;
-        } else if (kind == ig.SDL_KEYUP) {
+        } else if (kind == ig.SDL_EVENT_KEY_UP) {
             write("\n[KeyUp]");
             self.inputs[toInput(event.key.scancode)] = false;
         }

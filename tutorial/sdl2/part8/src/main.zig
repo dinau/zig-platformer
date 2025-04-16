@@ -1,18 +1,16 @@
-const builtin = @import ("builtin");
+const builtin = @import("builtin");
 const std = @import("std");
-const ig = @cImport({
-    @cInclude("SDL.h");
-    @cInclude("SDL_ttf.h");
-    @cInclude("stb_image.h");
-    @cInclude("time.h");
-});
+const ig = @import("sdl");
+const stb = @import("stb");
+const clib = @import("clib");
 
-const TexturePtr  = *ig.SDL_Texture;
+const TexturePtr = *ig.SDL_Texture;
 const RendererPtr = *ig.SDL_Renderer;
-const FontPtr     = *ig.TTF_Font;
-const Color       = ig.SDL_Color;
+const FontPtr = *ig.TTF_Font;
+const Color = ig.SDL_Color;
+
 fn newColor(r: u8, g: u8, b: u8, a: u8) Color {
-  return Color{.r = r, .g = g, .b = b, .a = a};
+    return Color{ .r = r, .g = g, .b = b, .a = a };
 }
 
 const Vec2f = struct {
@@ -25,18 +23,22 @@ const Vec2i = struct {
 };
 
 const Input = enum { none, left, right, jump, restart, quit };
+
 const Collision = enum { x, y, corner };
+
 const Time = struct {
-  begin: i32,
-  finish: i32,
-  best: i32,
+    begin: i32,
+    finish: i32,
+    best: i32,
 };
+
 const Player = struct {
-  texture: TexturePtr,
-  pos: Vec2f,
-  vel: Vec2f,
-  time: Time,
+    texture: TexturePtr,
+    pos: Vec2f,
+    vel: Vec2f,
+    time: Time,
 };
+
 const Map = struct {
     texture: TexturePtr,
     width: c_int,
@@ -54,7 +56,7 @@ const Game = struct {
 };
 
 const TilesPerRow = 16;
-const TileSize   = vec2i(64, 64);
+const TileSize = vec2i(64, 64);
 const PlayerSize = vec2f(64, 64);
 
 const MainWinWidth: i32 = 1280;
@@ -71,29 +73,29 @@ const InnerCamera = false;
 //-----------
 //-- vec2f
 //-----------
-inline fn vec2f(x:f32, y:f32) Vec2f {
-  return Vec2f{ .x = x, .y = y};
+inline fn vec2f(x: f32, y: f32) Vec2f {
+    return Vec2f{ .x = x, .y = y };
 }
 
 //-----------
 //-- vec2i
 //-----------
-inline fn vec2i(x:i32, y:i32) Vec2i {
-  return Vec2i{ .x = x, .y = y};
+inline fn vec2i(x: i32, y: i32) Vec2i {
+    return Vec2i{ .x = x, .y = y };
 }
 
 //-----------
 //-- newRect
 //-----------
-inline fn newRect(x:i32, y:i32, w:i32, h:i32) ig.SDL_Rect {
-  return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h};
+inline fn newRect(x: i32, y: i32, w: i32, h: i32) ig.SDL_Rect {
+    return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h };
 }
 
 //-----------
 //-- newFRect
 //-----------
-inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
-  return ig.SDL_FRect{.x = x, .y = y, .w = w, .h = h};
+inline fn newFRect(x: f32, y: f32, w: f32, h: f32) ig.SDL_FRect {
+    return ig.SDL_FRect{ .x = x, .y = y, .w = w, .h = h };
 }
 
 //----------------
@@ -101,7 +103,7 @@ inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
 //----------------
 const TBodyParts = struct { rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32 };
 inline fn newBodyParts(rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32) TBodyParts {
- return TBodyParts{.rect = rect, .frect = frect, .flip = flip};
+    return TBodyParts{ .rect = rect, .frect = frect, .flip = flip };
 }
 
 //--------------
@@ -147,40 +149,40 @@ fn renderMap(renderer: RendererPtr, map: Map, camera: ig.SDL_FPoint) void {
 //--- renderTextSub
 //------------------
 fn renderTextSub(renderer: RendererPtr, font: FontPtr, text: []u8, x: c_int, y: c_int, outline: c_int, color: Color) !void {
-  ig.TTF_SetFontOutline(font, outline);
-  const surface = ig.TTF_RenderText_Blended(font, text.ptr, color);
-  if (surface == null){
-    std.debug.print("{s}\n",.{"Could not render text surface in TTF_RenderText_Blended()"});
-  }
-  _ = ig.SDL_SetSurfaceAlphaMod(surface, color.a);
-  const source = newRect(0, 0, surface.?.*.w, surface.?.*.h);
-  const dest = newRect(x - outline, y - outline, surface.?.*.w, surface.?.*.h);
-  const texture = ig.SDL_CreateTextureFromSurface(renderer, surface);
-  if (texture == null){
-     std.debug.print("{s}\n",.{"Could not create texture from rendered text in SDL_CreateTextureFromSurface()"});
-    return error.SDL_CreateTextureFromSurface;
-  }
-  ig.SDL_FreeSurface(surface);
-  _ = ig.SDL_RenderCopyEx(renderer, texture, &source , &dest, 0.0, null, ig.SDL_FLIP_NONE);
-  ig.SDL_DestroyTexture(texture);
+    ig.TTF_SetFontOutline(font, outline);
+    const surface = ig.TTF_RenderText_Blended(font, text.ptr, color);
+    if (surface == null) {
+        std.debug.print("{s}\n", .{"Could not render text surface in TTF_RenderText_Blended()"});
+    }
+    _ = ig.SDL_SetSurfaceAlphaMod(surface, color.a);
+    const source = newRect(0, 0, surface.?.*.w, surface.?.*.h);
+    const dest = newRect(x - outline, y - outline, surface.?.*.w, surface.?.*.h);
+    const texture = ig.SDL_CreateTextureFromSurface(renderer, surface);
+    if (texture == null) {
+        std.debug.print("{s}\n", .{"Could not create texture from rendered text in SDL_CreateTextureFromSurface()"});
+        return error.SDL_CreateTextureFromSurface;
+    }
+    ig.SDL_FreeSurface(surface);
+    _ = ig.SDL_RenderCopyEx(renderer, texture, &source, &dest, 0.0, null, ig.SDL_FLIP_NONE);
+    ig.SDL_DestroyTexture(texture);
 }
 
 //---------------
 //--- renderText
 //---------------
 fn renderText(self: *Game, text: []u8, x: c_int, y: c_int, color: Color) !void {
-  const outlineColor = newColor(0, 0, 0, 0x8f);
-  try renderTextSub(self.renderer, self.font, text, x, y, 2, outlineColor);
-  try renderTextSub(self.renderer, self.font, text, x, y, 0, color);
+    const outlineColor = newColor(0, 0, 0, 0x8f);
+    try renderTextSub(self.renderer, self.font, text, x, y, 2, outlineColor);
+    try renderTextSub(self.renderer, self.font, text, x, y, 0, color);
 }
 
 //----------------
 //--- renderTextC
 //----------------
 fn renderTextC(self: *Game, text: []const u8, x: c_int, y: c_int, color: Color) !void {
-  var sbuf:[50]u8 = undefined;
-  const slc = try std.fmt.bufPrintZ(&sbuf, "{s}", .{text});
-  try renderText(self, slc, x, y, color);
+    var sbuf: [50]u8 = undefined;
+    const slc = try std.fmt.bufPrintZ(&sbuf, "{s}", .{text});
+    try renderText(self, slc, x, y, color);
 }
 
 //------------
@@ -223,8 +225,8 @@ fn write(str: []const u8) void { // for print
 //------------------
 const restartPos = vec2f(170, 500); // -- Initial pos
 const restartVel = vec2f(0.0, 0.0); // -- Initial vel
-const restartFinish:i32 = -1;
-const restartBest:i32 = -1;
+const restartFinish: i32 = -1;
+const restartBest: i32 = -1;
 
 fn restartPlayer(self: *Player) void {
     self.pos = restartPos;
@@ -237,11 +239,11 @@ fn restartPlayer(self: *Player) void {
 //--- newTime     -- Time type
 //------------
 fn newTime() Time {
-  return Time{
-    .begin   =  -1,
-    .finish  =  restartFinish,
-    .best    =  restartBest,
-  };
+    return Time{
+        .begin = -1,
+        .finish = restartFinish,
+        .best = restartBest,
+    };
 }
 
 //--------------
@@ -288,12 +290,12 @@ fn newMap(alloc: std.mem.Allocator, texture: TexturePtr, file: []const u8) !Map 
 //------------
 fn newGame(alloc: std.mem.Allocator, renderer: RendererPtr, texture_player: TexturePtr, texture_grass: TexturePtr) !Game {
     const font = ig.TTF_OpenFont("DejaVuSans.ttf", 14);
-    if (font == null){
-        std.debug.print("{s}\n",.{"Failed to load font"});
+    if (font == null) {
+        std.debug.print("{s}\n", .{"Failed to load font"});
         return error.TTF_OpenFont;
     }
-    if ( -1 == ig.TTF_SetFontSizeDPI(font, 18, 96,96)){
-        std.debug.print("{s}\n",.{"Error !: TTF_SetFontSizeDPI()"});
+    if (-1 == ig.TTF_SetFontSizeDPI(font, 18, 96, 96)) {
+        std.debug.print("{s}\n", .{"Error !: TTF_SetFontSizeDPI()"});
         return error.TTF_SetFontSizeDPI;
     }
     return Game{
@@ -328,42 +330,43 @@ fn handleInput(self: *Game) void {
 //---------------
 //--- formatTime
 //---------------
-fn formatTime(alloc:std.mem.Allocator, ticks: i32) ![]u8 {
-  const mins:u32  = @intCast(@divFloor(@divFloor(ticks , 50) , 60));
-  const secs:u32  = @intCast(@rem(@divFloor(ticks , 50) , 60));
-  const cents:u32 = @intCast(@rem(ticks, 50)  * 2);
-  return std.fmt.allocPrintZ(alloc, "{d:02}:{d:02}:{d:02}", .{mins, secs, cents});
+fn formatTime(alloc: std.mem.Allocator, ticks: i32) ![]u8 {
+    const mins: u32 = @intCast(@divFloor(@divFloor(ticks, 50), 60));
+    const secs: u32 = @intCast(@rem(@divFloor(ticks, 50), 60));
+    const cents: u32 = @intCast(@rem(ticks, 50) * 2);
+    return std.fmt.allocPrintZ(alloc, "{d:02}:{d:02}:{d:02}", .{ mins, secs, cents });
 }
 
 //---------------
 //--- getTileVec
 //---------------
-fn getTileVec(map: Map, pos: Vec2f) u8{
-  return getTile(map, std.math.floor(pos.x), std.math.floor(pos.y));
+fn getTileVec(map: Map, pos: Vec2f) u8 {
+    return getTile(map, std.math.floor(pos.x), std.math.floor(pos.y));
 }
 
 //----------
 //--- logic
 //----------
-fn logic(alloc: std.mem.Allocator, self: *Game,tick: i32) !void {
-  switch (getTileVec(self.map, self.player.pos)) {
-    start => { self.player.time.begin = tick;
-               //std.debug.print("{s}",.{"\nStart"});
-              },
-    finish => {
-      if(self.player.time.begin >= 0){
-        self.player.time.finish = tick - self.player.time.begin;
-        self.player.time.begin = -1;
-        if(self.player.time.best < 0 or self.player.time.finish < self.player.time.best){
-           self.player.time.best = self.player.time.finish;
-            //std.debug.print("{s}",.{"\nBest time"});
-        }
-        //std.debug.print("{s}",.{"\nFinish"});
-        std.debug.print("\n{s}",.{try formatTime(alloc, self.player.time.finish)});
-      }
-    },
-    else => {}
-  }
+fn logic(alloc: std.mem.Allocator, self: *Game, tick: i32) !void {
+    switch (getTileVec(self.map, self.player.pos)) {
+        start => {
+            self.player.time.begin = tick;
+            //std.debug.print("{s}",.{"\nStart"});
+        },
+        finish => {
+            if (self.player.time.begin >= 0) {
+                self.player.time.finish = tick - self.player.time.begin;
+                self.player.time.begin = -1;
+                if (self.player.time.best < 0 or self.player.time.finish < self.player.time.best) {
+                    self.player.time.best = self.player.time.finish;
+                    //std.debug.print("{s}",.{"\nBest time"});
+                }
+                //std.debug.print("{s}",.{"\nFinish"});
+                std.debug.print("\n{s}", .{try formatTime(alloc, self.player.time.finish)});
+            }
+        },
+        else => {},
+    }
 }
 
 //-----------
@@ -377,40 +380,39 @@ fn render(alloc: std.mem.Allocator, self: *Game, tick: c_int) !void {
 
     const time = self.player.time;
     const white = newColor(255, 255, 255, 255);
-    const green = newColor(0,   255, 0,   255);
-    const blue  = newColor(0,   255, 255 ,255);
-    var sbuf:[50]u8 = undefined;
-    var slc:[]u8 = undefined;
-    if(time.begin >= 0){
+    const green = newColor(0, 255, 0, 255);
+    const blue = newColor(0, 255, 255, 255);
+    var sbuf: [50]u8 = undefined;
+    var slc: []u8 = undefined;
+    if (time.begin >= 0) {
         try renderText(self, try formatTime(alloc, tick - time.begin), 50, 100, white);
-    }
-    else if( time.finish >= 0){
-        slc = try std.fmt.bufPrintZ(&sbuf, "{s}{s}", .{"Finished in: ", try formatTime(alloc, time.finish)});
+    } else if (time.finish >= 0) {
+        slc = try std.fmt.bufPrintZ(&sbuf, "{s}{s}", .{ "Finished in: ", try formatTime(alloc, time.finish) });
         try renderText(self, slc, 50, 100, white);
     }
-    if(time.best >= 0){
-        slc = try std.fmt.bufPrintZ(&sbuf, "{s}{s}", .{"Best time  : " , try formatTime(alloc, time.best)});
-       try renderText(self, slc, 50, 150, green);
+    if (time.best >= 0) {
+        slc = try std.fmt.bufPrintZ(&sbuf, "{s}{s}", .{ "Best time  : ", try formatTime(alloc, time.best) });
+        try renderText(self, slc, 50, 150, green);
     }
-    if(time.begin < 0){
+    if (time.begin < 0) {
         const base = 230;
         const colm = 30;
-        try renderTextC(self, "Jump   : Space, Up, J, K" ,          50, base+colm*1, white);
-        try renderTextC(self, "Left     : A, H, Left",              50, base+colm*2, white);
-        try renderTextC(self, "Right   : D, L, Right",              50, base+colm*3, white);
-        try renderTextC(self, "Restart: R",                         50, base+colm*4, white);
-        try renderTextC(self, "Quit     : Q, Esc" ,                 50, base+colm*5, white);
-        try renderTextC(self, "Zig-" ++ builtin.zig_version_string ,50, base+colm*7, white);
+        try renderTextC(self, "Jump   : Space, Up, J, K", 50, base + colm * 1, white);
+        try renderTextC(self, "Left     : A, H, Left", 50, base + colm * 2, white);
+        try renderTextC(self, "Right   : D, L, Right", 50, base + colm * 3, white);
+        try renderTextC(self, "Restart: R", 50, base + colm * 4, white);
+        try renderTextC(self, "Quit     : Q, Esc", 50, base + colm * 5, white);
+        try renderTextC(self, "Zig-" ++ builtin.zig_version_string, 50, base + colm * 7, white);
 
-        var sdlVer:ig.SDL_version = undefined;
+        var sdlVer: ig.SDL_version = undefined;
         ig.SDL_GetVersion(&sdlVer);
-        slc = try std.fmt.bufPrintZ(&sbuf,"SDL2   : {d}.{d}.{d}", .{sdlVer.major, sdlVer.minor, sdlVer.patch});
-        try renderText(self, slc,                                   50, base+colm*9, white);
+        slc = try std.fmt.bufPrintZ(&sbuf, "SDL2   : {d}.{d}.{d}", .{ sdlVer.major, sdlVer.minor, sdlVer.patch });
+        try renderText(self, slc, 50, base + colm * 9, white);
 
         const ttfVer = ig.TTF_Linked_Version();
-        slc = try std.fmt.bufPrintZ(&sbuf,"SDL_ttf: {d}.{d}.{d}", .{ttfVer.*.major, ttfVer.*.minor, ttfVer.*.patch});
-        try renderText(self, slc,                                   50, base+colm*10, white);
-        try renderTextC(self, "Zig-Platformer-SDL2",                50, base+colm*14, blue);
+        slc = try std.fmt.bufPrintZ(&sbuf, "SDL_ttf: {d}.{d}.{d}", .{ ttfVer.*.major, ttfVer.*.minor, ttfVer.*.patch });
+        try renderText(self, slc, 50, base + colm * 10, white);
+        try renderTextC(self, "Zig-Platformer-SDL2", 50, base + colm * 14, blue);
     }
     // Show the result on screen
     ig.SDL_RenderPresent(self.renderer);
@@ -438,7 +440,7 @@ fn isSolid(map: Map, pos: Vec2f) bool {
 //--- onGround
 //-------------
 fn onGround(map: Map, pos: Vec2f, size: Vec2f) bool {
-    const sz  = vec2f(size.x * 0.5, size.y * 0.5);
+    const sz = vec2f(size.x * 0.5, size.y * 0.5);
     const pt1 = vec2f(pos.x - sz.x, pos.y + sz.y + 1);
     const pt2 = vec2f(pos.x + sz.x, pos.y + sz.y + 1);
     return isSolid(map, pt1) or isSolid(map, pt2);
@@ -450,9 +452,9 @@ fn onGround(map: Map, pos: Vec2f, size: Vec2f) bool {
 fn testBox(map: Map, pos: Vec2f, size: Vec2f) bool {
     const sz = vec2f(size.x * 0.5, size.y * 0.5);
     return isSolid(map, vec2f(pos.x - sz.x, pos.y - sz.y)) or
-        isSolid(map,    vec2f(pos.x + sz.x, pos.y - sz.y)) or
-        isSolid(map,    vec2f(pos.x - sz.x, pos.y + sz.y)) or
-        isSolid(map,    vec2f(pos.x + sz.x, pos.y + sz.y));
+        isSolid(map, vec2f(pos.x + sz.x, pos.y - sz.y)) or
+        isSolid(map, vec2f(pos.x - sz.x, pos.y + sz.y)) or
+        isSolid(map, vec2f(pos.x + sz.x, pos.y + sz.y));
 }
 
 //----------------
@@ -550,19 +552,19 @@ fn physics(self: *Game) void {
 //---------------
 //--- moveCamera
 //---------------
-fn moveCamera(self: *Game) void{
-  const halfWin = MainWinWidth / 2;
-  if (FluidCamera) {
-    const dist = self.camera.x - self.player.pos.x + halfWin;
-    self.camera.x = self.camera.x - 0.05 * dist;
-    //std.debug.print(dist,self.camera.x);
-  } else if(InnerCamera){
-    const leftArea  = self.player.pos.x - halfWin - 100;
-    const rightArea = self.player.pos.x - halfWin + 100;
-    self.camera.x = std.math.clamp(self.camera.x, leftArea, rightArea);
-  } else{
-    self.camera.x = self.player.pos.x - halfWin;
-  }
+fn moveCamera(self: *Game) void {
+    const halfWin = MainWinWidth / 2;
+    if (FluidCamera) {
+        const dist = self.camera.x - self.player.pos.x + halfWin;
+        self.camera.x = self.camera.x - 0.05 * dist;
+        //std.debug.print(dist,self.camera.x);
+    } else if (InnerCamera) {
+        const leftArea = self.player.pos.x - halfWin - 100;
+        const rightArea = self.player.pos.x - halfWin + 100;
+        self.camera.x = std.math.clamp(self.camera.x, leftArea, rightArea);
+    } else {
+        self.camera.x = self.player.pos.x - halfWin;
+    }
 }
 
 //------------------------
@@ -570,8 +572,8 @@ fn moveCamera(self: *Game) void{
 //------------------------
 fn loadTextureFromFile(filename: [*c]const u8, renderer: RendererPtr, outWidth: *c_int, outHeight: *c_int) ?TexturePtr {
     var channels: c_int = 4;
-    const image_data = ig.stbi_load(filename, outWidth, outHeight, &channels, 4);
-    defer ig.stbi_image_free(image_data);
+    const image_data = stb.stbi_load(filename, outWidth, outHeight, &channels, 4);
+    defer stb.stbi_image_free(image_data);
     const surface = ig.SDL_CreateRGBSurfaceFrom(image_data, outWidth.*, outHeight.*, channels * 8, channels * outWidth.*, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
     const outTexture = ig.SDL_CreateTextureFromSurface(renderer, surface);
     defer ig.SDL_FreeSurface(surface);
@@ -590,7 +592,7 @@ pub fn main() !void {
         return error.SDL_init;
     }
     defer ig.SDL_Quit();
-    if ( 0 != ig.TTF_Init()){
+    if (0 != ig.TTF_Init()) {
         return error.TTF_init;
     }
     defer ig.TTF_Quit();
@@ -624,7 +626,7 @@ pub fn main() !void {
     // NewGame
     var game = try newGame(alloc, renderer, texture_player, texture_grass);
 
-    const startTime:c_long = ig.clock();
+    const startTime: c_long = clib.clock();
     var lastTick: c_long = 0;
 
     //-----------
@@ -632,7 +634,7 @@ pub fn main() !void {
     //-----------
     while (!game.inputs[@as(usize, @intFromEnum(Input.quit))]) {
         handleInput(&game);
-        const newTick = @divFloor(((ig.clock() - startTime) * 50), 1000);
+        const newTick = @divFloor(((clib.clock() - startTime) * 50), 1000);
         var n = lastTick + 1;
         while (n <= newTick) : (n += 1) {
             physics(&game);

@@ -1,7 +1,6 @@
 const std = @import("std");
-const ig = @cImport({
-    @cInclude("SDL.h");
-});
+const ig = @import("sdl");
+const stb = @import("stb");
 
 const RendererPtr = *ig.SDL_Renderer;
 

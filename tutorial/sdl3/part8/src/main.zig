@@ -1,12 +1,8 @@
 const builtin = @import("builtin");
 const std = @import("std");
-const ig = @cImport({
-    @cDefine("SDL_ENABLE_OLD_NAMES", "");
-    @cInclude("SDL.h");
-    @cInclude("SDL_ttf.h");
-    @cInclude("stb_image.h");
-    @cInclude("time.h");
-});
+const ig = @import("sdl");
+const stb = @import("stb");
+const clib = @import("clib");
 
 const TexturePtr = *ig.SDL_Texture;
 const RendererPtr = *ig.SDL_Renderer;
@@ -26,18 +22,22 @@ const Vec2i = struct {
 };
 
 const Input = enum { none, left, right, jump, restart, quit };
+
 const Collision = enum { x, y, corner };
+
 const Time = struct {
     begin: i32,
     finish: i32,
     best: i32,
 };
+
 const Player = struct {
     texture: TexturePtr,
     pos: Vec2f,
     vel: Vec2f,
     time: Time,
 };
+
 const Map = struct {
     texture: TexturePtr,
     width: c_int,
@@ -139,7 +139,7 @@ fn renderMap(renderer: RendererPtr, map: Map, camera: ig.SDL_FPoint) void {
             const n = @as(c_int, @intCast(i));
             dest.x = @floatFromInt(@mod(n, map.width) * TileSize.x - @as(c_int, @intFromFloat(camera.x)));
             dest.y = @floatFromInt(@divFloor(n, map.width) * TileSize.y - @as(c_int, @intFromFloat(camera.y)));
-            _ = ig.SDL_RenderCopy(renderer, map.texture, &clip, &dest);
+            _ = ig.SDL_RenderTexture(renderer, map.texture, &clip, &dest);
         }
     }
 }
@@ -161,7 +161,8 @@ fn renderTextSub(renderer: RendererPtr, font: FontPtr, text: []u8, x: c_int, y: 
         std.debug.print("{s}\n", .{"Could not create texture from rendered text in SDL_CreateTextureFromSurface()"});
         return error.SDL_CreateTextureFromSurface;
     }
-    ig.SDL_FreeSurface(surface);
+    ig.SDL_DestroySurface(surface);
+
     _ = ig.SDL_RenderTextureRotated(renderer, texture, &source, &dest, 0.0, null, ig.SDL_FLIP_NONE);
     ig.SDL_DestroyTexture(texture);
 }
@@ -314,12 +315,12 @@ fn handleInput(self: *Game) void {
     var event: ig.SDL_Event = undefined;
     while (ig.SDL_PollEvent(&event)) {
         const kind = event.type;
-        if (kind == ig.SDL_QUIT) {
+        if (kind == ig.SDL_EVENT_QUIT) {
             self.inputs[@intFromEnum(Input.quit)] = true;
-        } else if (kind == ig.SDL_KEYDOWN) {
+        } else if (kind == ig.SDL_EVENT_KEY_DOWN) {
             write("\n[KeyDown]");
             self.inputs[toInput(event.key.scancode)] = true;
-        } else if (kind == ig.SDL_KEYUP) {
+        } else if (kind == ig.SDL_EVENT_KEY_UP) {
             write("\n[KeyUp]");
             self.inputs[toInput(event.key.scancode)] = false;
         }
@@ -373,11 +374,9 @@ fn render(alloc: std.mem.Allocator, self: *Game, tick: c_int) !void {
     renderMap(self.renderer, self.map, self.camera);
 
     const time = self.player.time;
-    const white = newColor(255, 255, 255, 255);
-    const green = newColor(0, 255, 0, 255);
-    const blue = newColor(0, 255, 255, 255);
     var sbuf: [50]u8 = undefined;
     var slc: []u8 = undefined;
+    const white = newColor(255, 255, 255, 255);
     if (time.begin >= 0) {
         try renderText(self, try formatTime(alloc, tick - time.begin), 50, 100, white);
     } else if (time.finish >= 0) {
@@ -385,10 +384,12 @@ fn render(alloc: std.mem.Allocator, self: *Game, tick: c_int) !void {
         try renderText(self, slc, 50, 100, white);
     }
     if (time.best >= 0) {
+        const green = newColor(0, 255, 0, 255);
         slc = try std.fmt.bufPrintZ(&sbuf, "{s}{s}", .{ "Best time  : ", try formatTime(alloc, time.best) });
         try renderText(self, slc, 50, 150, green);
     }
     if (time.begin < 0) {
+        const blue = newColor(0, 255, 255, 255);
         const base = 230;
         const colm = 30;
         try renderTextC(self, "Jump   : Space, Up, J, K", 50, base + colm * 1, white);
@@ -573,11 +574,11 @@ inline fn SDL_CreateRGBSurfaceFrom(pixels: [*c]u8, width: c_int, height: c_int, 
 //------------------------
 fn loadTextureFromFile(filename: [*c]const u8, renderer: RendererPtr, outWidth: *c_int, outHeight: *c_int) ?TexturePtr {
     var channels: c_int = 4;
-    const image_data = ig.stbi_load(filename, outWidth, outHeight, &channels, 4);
-    defer ig.stbi_image_free(image_data);
+    const image_data = stb.stbi_load(filename, outWidth, outHeight, &channels, 4);
+    defer stb.stbi_image_free(image_data);
     const surface = SDL_CreateRGBSurfaceFrom(image_data, outWidth.*, outHeight.*, channels * 8, channels * outWidth.*, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
     const outTexture = ig.SDL_CreateTextureFromSurface(renderer, surface);
-    defer ig.SDL_FreeSurface(surface);
+    defer ig.SDL_DestroySurface(surface);
     return outTexture;
 }
 
@@ -641,7 +642,7 @@ pub fn main() !void {
     // NewGame
     var game = try newGame(alloc, renderer, texture_player, texture_grass);
 
-    const startTime: c_long = ig.clock();
+    const startTime: c_long = clib.clock();
     var lastTick: c_long = 0;
 
     //-----------
@@ -649,7 +650,7 @@ pub fn main() !void {
     //-----------
     while (!game.inputs[@as(usize, @intFromEnum(Input.quit))]) {
         handleInput(&game);
-        const newTick = @divFloor(((ig.clock() - startTime) * 50), 1000);
+        const newTick = @divFloor(((clib.clock() - startTime) * 50), 1000);
         var n = lastTick + 1;
         while (n <= newTick) : (n += 1) {
             physics(&game);

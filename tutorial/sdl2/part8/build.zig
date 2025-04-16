@@ -4,13 +4,6 @@ const builtin = @import("builtin");
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-    const lib = b.addStaticLibrary(.{
-        .name = "part8",
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-    b.installArtifact(lib);
     const exe = b.addExecutable(.{
         .name = "platformer_part8",
         .root_source_file = b.path("src/main.zig"),
@@ -19,43 +12,85 @@ pub fn build(b: *std.Build) void {
     });
     // Load Icon
     exe.addWin32ResourceFile(.{ .file = b.path("src/res/res.rc") });
-    const sdl2_base     = "../../libs/sdl/SDL2";
-    const sdl2_ttf_base = "../../libs/sdl/SDL2_ttf";
-    const sdl2_path     = sdl2_base ++ "/" ++ "x86_64-w64-mingw32";
-    const sdl2_ttf_path = sdl2_ttf_base;
-    const stb_base = "../../libs/stb";
+
+    // Modules
+    const stb_path = "../../libs/stb";
+    const sdl_path = "../../libs/sdl/SDL2/x86_64-w64-mingw32";
+    const sdl_ttf_path = "../../libs/sdl/SDL2_ttf";
+
+    const clib_step = b.addTranslateC(.{
+        .root_source_file = b.path("../../libs/clib.h"),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+
+    const stb_step = b.addTranslateC(.{
+        .root_source_file = b.path(b.pathJoin(&.{ stb_path, "stb_image.h" })),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+
+    const sdl_step = b.addTranslateC(.{
+        .root_source_file = b.path(b.pathJoin(&.{ sdl_path, "include/SDL2/SDL.h" })),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+
+    const sdl_ttf_step = b.addTranslateC(.{
+        .root_source_file = b.path(b.pathJoin(&.{ sdl_ttf_path, "include/SDL_ttf.h" })),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+
     //---------------
     // Include paths
     //---------------
-    exe.addIncludePath(b.path("../../libs/stb"));
-    //
+    stb_step.addIncludePath(b.path(stb_path));
+
     if (builtin.target.os.tag == .windows) {
-        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_path,     "include/SDL2" })));
-        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_ttf_path, "include" })));
+        const sdl_inc_path = b.path(b.pathJoin(&.{ sdl_path, "include/SDL2" }));
+        sdl_step.addIncludePath(sdl_inc_path);
+        sdl_ttf_step.addIncludePath(sdl_inc_path);
+        sdl_ttf_step.addIncludePath(b.path(b.pathJoin(&.{ sdl_ttf_path, "include" })));
     } else if (builtin.target.os.tag == .macos) {
-        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_path,     "include/SDL2" })));
-        exe.addIncludePath(b.path(b.pathJoin(&.{ sdl2_ttf_path, "include" })));
+        const sdl_inc_path = b.path(b.pathJoin(&.{ sdl_path, "include/SDL2" }));
+        sdl_step.addIncludePath(sdl_inc_path);
+        sdl_ttf_step.addIncludePath(sdl_inc_path);
+        sdl_ttf_step.addIncludePath(b.path(b.pathJoin(&.{ sdl_ttf_path, "include" })));
     } else if (builtin.target.os.tag == .linux) {
-        const sdl2_inc_path: std.Build.LazyPath =     .{ .cwd_relative = "/usr/include/SDL2" };
-        exe.addIncludePath(sdl2_inc_path);
-        const sdl2_ttf_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL2_ttf" };
-        exe.addIncludePath(sdl2_ttf_inc_path);
+        const sdl_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL2" };
+        sdl_step.addIncludePath(sdl_inc_path);
+        const sdl_ttf_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include/SDL2_ttf" };
+        sdl_ttf_step.addIncludePath(sdl_ttf_inc_path);
+        sdl_ttf_step.addIncludePath(sdl_inc_path);
     }
-    //---------------
-    // Sources C/C++
-    //---------------
-    exe.addCSourceFiles(.{
+
+    // clib module
+    exe.root_module.addImport("clib", clib_step.createModule());
+
+    // stb module
+    const stb_mod = stb_step.createModule();
+    stb_mod.addCSourceFiles(.{
         .files = &.{
-            b.pathJoin(&.{stb_base,"stb_impl.c"}),
-        },
-        .flags = &.{
-            "-O2",
+            b.pathJoin(&.{ stb_path, "stb_impl.c" }),
         },
     });
+    exe.root_module.addImport("stb", stb_mod);
+
+    // sdl module =  (sdl2 + sdl_ttf)
+    const sdl_mod = sdl_step.createModule();
+    exe.root_module.addImport("sdl", sdl_mod);
+    const sdl_ttf_mod = sdl_ttf_step.createModule();
+    exe.root_module.addImport("sdl", sdl_ttf_mod);
 
     //------
     // Libs
     //------
+    const static_link: bool = false;
     if (builtin.target.os.tag == .windows) {
         exe.linkSystemLibrary("gdi32");
         exe.linkSystemLibrary("imm32");
@@ -80,16 +115,16 @@ pub fn build(b: *std.Build) void {
         exe.linkSystemLibrary("opengl32");
         exe.linkSystemLibrary("shell32");
         exe.linkSystemLibrary("user32");
-        if (false){ // Static link on Windows
-          exe.addObjectFile(b.path(b.pathJoin(&.{ sdl2_path,     "lib", "libSDL2.a" })));
-          exe.addObjectFile(b.path(b.pathJoin(&.{ sdl2_ttf_path, "lib", "x64", "SDL2_ttf.lib" })));
-        }else{     // Dynamic link on Windows
-          exe.addObjectFile(b.path(b.pathJoin(&.{sdl2_path,     "lib","libSDL2.dll.a"})));
-          exe.addObjectFile(b.path(b.pathJoin(&.{sdl2_ttf_path, "lib", "x64", "SDL2_ttf.lib"})));
+        if (static_link) { // Static link on Windows
+            exe.addObjectFile(b.path(b.pathJoin(&.{ sdl_path, "lib", "libSDL2.a" })));
+            exe.addObjectFile(b.path(b.pathJoin(&.{ sdl_ttf_path, "lib", "x64", "SDL2_ttf.lib" })));
+        } else { // Dynamic link on Windows
+            exe.addObjectFile(b.path(b.pathJoin(&.{ sdl_path, "lib", "libSDL2.dll.a" })));
+            exe.addObjectFile(b.path(b.pathJoin(&.{ sdl_ttf_path, "lib", "x64", "SDL2_ttf.lib" })));
         }
     } else if (builtin.target.os.tag == .macos) {
         exe.linkSystemLibrary("sdl2");
-        exe.linkSystemLibrary("sdl2_ttf"); // TODO ?
+        exe.linkSystemLibrary("sdl2_ttf");
     } else if (builtin.target.os.tag == .linux) {
         exe.linkSystemLibrary("glfw3");
         exe.linkSystemLibrary("GL");
@@ -115,13 +150,15 @@ pub fn build(b: *std.Build) void {
     }
 
     // Copy *.dll to bin folder
-    if (builtin.target.os.tag == .windows) {
-        const sdl_dll = "SDL2.dll";
-        var res = b.addInstallFile(b.path(sdl2_path ++ "/bin/"  ++ sdl_dll), "bin/" ++ sdl_dll);
-        b.getInstallStep().dependOn(&res.step);
-        const ttf_dll = "SDL2_ttf.dll";
-        res = b.addInstallFile(b.path(sdl2_ttf_path ++ "/lib/x64/"  ++ ttf_dll), "bin/" ++ ttf_dll);
-        b.getInstallStep().dependOn(&res.step);
+    if (!static_link) {
+        if (builtin.target.os.tag == .windows) {
+            const sdl_dll = "SDL2.dll";
+            var res = b.addInstallFile(b.path(sdl_path ++ "/bin/" ++ sdl_dll), "bin/" ++ sdl_dll);
+            b.getInstallStep().dependOn(&res.step);
+            const ttf_dll = "SDL2_ttf.dll";
+            res = b.addInstallFile(b.path(sdl_ttf_path ++ "/lib/x64/" ++ ttf_dll), "bin/" ++ ttf_dll);
+            b.getInstallStep().dependOn(&res.step);
+        }
     }
 
     const run_cmd = b.addRunArtifact(exe);

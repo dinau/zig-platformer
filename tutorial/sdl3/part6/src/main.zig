@@ -1,10 +1,7 @@
 const std = @import("std");
-const ig = @cImport({
-    @cDefine("SDL_ENABLE_OLD_NAMES","");
-    @cInclude("SDL.h");
-    @cInclude("stb_image.h");
-    @cInclude("time.h");
-});
+const ig = @import("sdl");
+const stb = @import("stb");
+const clib = @import("clib");
 
 const TexturePtr  = *ig.SDL_Texture;
 const RendererPtr = *ig.SDL_Renderer;
@@ -19,8 +16,15 @@ const Vec2i = struct {
 };
 
 const Input = enum { none, left, right, jump, restart, quit };
+
 const Collision = enum { x, y, corner };
-const Player = struct { texture: TexturePtr, pos: Vec2f, vel: Vec2f };
+
+const Player = struct {
+    texture: TexturePtr,
+    pos: Vec2f,
+    vel: Vec2f,
+};
+
 const Map = struct {
     texture: TexturePtr,
     width: c_int,
@@ -37,7 +41,7 @@ const Game = struct {
 };
 
 const TilesPerRow = 16;
-const TileSize   = vec2i(64, 64);
+const TileSize = vec2i(64, 64);
 const PlayerSize = vec2f(64, 64);
 
 const MainWinWidth: i32 = 1280;
@@ -54,29 +58,29 @@ const InnerCamera = false;
 //-----------
 //-- vec2f
 //-----------
-inline fn vec2f(x:f32, y:f32) Vec2f {
-  return Vec2f{ .x = x, .y = y};
+inline fn vec2f(x: f32, y: f32) Vec2f {
+    return Vec2f{ .x = x, .y = y };
 }
 
 //-----------
 //-- vec2i
 //-----------
-inline fn vec2i(x:i32, y:i32) Vec2i {
-  return Vec2i{ .x = x, .y = y};
+inline fn vec2i(x: i32, y: i32) Vec2i {
+    return Vec2i{ .x = x, .y = y };
 }
 
 //-----------
 //-- newRect
 //-----------
-inline fn newRect(x:i32, y:i32, w:i32, h:i32) ig.SDL_Rect {
-  return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h};
+inline fn newRect(x: i32, y: i32, w: i32, h: i32) ig.SDL_Rect {
+    return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h };
 }
 
 //-----------
 //-- newFRect
 //-----------
-inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
-  return ig.SDL_FRect{.x = x, .y = y, .w = w, .h = h};
+inline fn newFRect(x: f32, y: f32, w: f32, h: f32) ig.SDL_FRect {
+    return ig.SDL_FRect{ .x = x, .y = y, .w = w, .h = h };
 }
 
 //----------------
@@ -84,7 +88,7 @@ inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
 //----------------
 const TBodyParts = struct { src: ig.SDL_FRect, dest: ig.SDL_FRect, flip: u32 };
 inline fn newBodyParts(src: ig.SDL_FRect, dest: ig.SDL_FRect, flip: u32) TBodyParts {
- return TBodyParts{.src = src, .dest = dest, .flip = flip};
+    return TBodyParts{ .src = src, .dest = dest, .flip = flip };
 }
 
 //--------------
@@ -121,7 +125,7 @@ fn renderMap(renderer: RendererPtr, map: Map, camera: ig.SDL_FPoint) void {
             const n = @as(c_int, @intCast(i));
             dest.x = @floatFromInt(@mod(n, map.width) * TileSize.x - @as(c_int, @intFromFloat(camera.x)));
             dest.y = @floatFromInt(@divFloor(n, map.width) * TileSize.y - @as(c_int, @intFromFloat(camera.y)));
-            _ = ig.SDL_RenderCopy(renderer, map.texture, &clip, &dest);
+            _ = ig.SDL_RenderTexture(renderer, map.texture, &clip, &dest);
         }
     }
 }
@@ -230,12 +234,12 @@ fn handleInput(self: *Game) void {
     var event: ig.SDL_Event = undefined;
     while (ig.SDL_PollEvent(&event)) {
         const kind = event.type;
-        if (kind == ig.SDL_QUIT) {
+        if (kind == ig.SDL_EVENT_QUIT) {
             self.inputs[@intFromEnum(Input.quit)] = true;
-        } else if (kind == ig.SDL_KEYDOWN) {
+        } else if (kind == ig.SDL_EVENT_KEY_DOWN) {
             write("\n[KeyDown]");
             self.inputs[toInput(event.key.scancode)] = true;
-        } else if (kind == ig.SDL_KEYUP) {
+        } else if (kind == ig.SDL_EVENT_KEY_UP) {
             write("\n[KeyUp]");
             self.inputs[toInput(event.key.scancode)] = false;
         }
@@ -274,7 +278,7 @@ fn isSolid(map: Map, pos: Vec2f) bool {
 //--- onGround
 //-------------
 fn onGround(map: Map, pos: Vec2f, size: Vec2f) bool {
-    const sz  = vec2f(size.x * 0.5, size.y * 0.5);
+    const sz = vec2f(size.x * 0.5, size.y * 0.5);
     const pt1 = vec2f(pos.x - sz.x, pos.y + sz.y + 1);
     const pt2 = vec2f(pos.x + sz.x, pos.y + sz.y + 1);
     return isSolid(map, pt1) or isSolid(map, pt2);
@@ -286,9 +290,9 @@ fn onGround(map: Map, pos: Vec2f, size: Vec2f) bool {
 fn testBox(map: Map, pos: Vec2f, size: Vec2f) bool {
     const sz = vec2f(size.x * 0.5, size.y * 0.5);
     return isSolid(map, vec2f(pos.x - sz.x, pos.y - sz.y)) or
-        isSolid(map,    vec2f(pos.x + sz.x, pos.y - sz.y)) or
-        isSolid(map,    vec2f(pos.x - sz.x, pos.y + sz.y)) or
-        isSolid(map,    vec2f(pos.x + sz.x, pos.y + sz.y));
+        isSolid(map, vec2f(pos.x + sz.x, pos.y - sz.y)) or
+        isSolid(map, vec2f(pos.x - sz.x, pos.y + sz.y)) or
+        isSolid(map, vec2f(pos.x + sz.x, pos.y + sz.y));
 }
 
 //----------------
@@ -386,28 +390,26 @@ fn physics(self: *Game) void {
 //---------------
 //--- moveCamera
 //---------------
-fn moveCamera(self: *Game) void{
-  const halfWin = MainWinWidth / 2;
-  if (FluidCamera) {
-    const dist = self.camera.x - self.player.pos.x + halfWin;
-    self.camera.x = self.camera.x - 0.05 * dist;
-    //std.debug.print(dist,self.camera.x);
-  } else if(InnerCamera){
-    const leftArea  = self.player.pos.x - halfWin - 100;
-    const rightArea = self.player.pos.x - halfWin + 100;
-    self.camera.x = std.math.clamp(self.camera.x, leftArea, rightArea);
-  } else{
-    self.camera.x = self.player.pos.x - halfWin;
-  }
+fn moveCamera(self: *Game) void {
+    const halfWin = MainWinWidth / 2;
+    if (FluidCamera) {
+        const dist = self.camera.x - self.player.pos.x + halfWin;
+        self.camera.x = self.camera.x - 0.05 * dist;
+        //std.debug.print(dist,self.camera.x);
+    } else if (InnerCamera) {
+        const leftArea = self.player.pos.x - halfWin - 100;
+        const rightArea = self.player.pos.x - halfWin + 100;
+        self.camera.x = std.math.clamp(self.camera.x, leftArea, rightArea);
+    } else {
+        self.camera.x = self.player.pos.x - halfWin;
+    }
 }
 
 //----------------------
 // SDL_CreateRGBSurface      # For Compatibility with SDL2
 //----------------------
-inline fn SDL_CreateRGBSurfaceFrom(pixels: [*c]u8, width:c_int, height:c_int, depth:c_int, pitch:c_int , Rmask: c_uint, Gmask:c_uint, Bmask:c_uint, Amask:c_uint) *ig.SDL_Surface {
-  return ig.SDL_CreateSurfaceFrom(width, height,
-                               ig.SDL_GetPixelFormatForMasks(depth, Rmask, Gmask, Bmask, Amask),
-                              pixels, pitch);
+inline fn SDL_CreateRGBSurfaceFrom(pixels: [*c]u8, width: c_int, height: c_int, depth: c_int, pitch: c_int, Rmask: c_uint, Gmask: c_uint, Bmask: c_uint, Amask: c_uint) *ig.SDL_Surface {
+    return ig.SDL_CreateSurfaceFrom(width, height, ig.SDL_GetPixelFormatForMasks(depth, Rmask, Gmask, Bmask, Amask), pixels, pitch);
 }
 
 //------------------------
@@ -415,11 +417,11 @@ inline fn SDL_CreateRGBSurfaceFrom(pixels: [*c]u8, width:c_int, height:c_int, de
 //------------------------
 fn loadTextureFromFile(filename: [*c]const u8, renderer: RendererPtr, outWidth: *c_int, outHeight: *c_int) ?TexturePtr {
     var channels: c_int = 4;
-    const image_data = ig.stbi_load(filename, outWidth, outHeight, &channels, 4);
-    defer ig.stbi_image_free(image_data);
+    const image_data = stb.stbi_load(filename, outWidth, outHeight, &channels, 4);
+    defer stb.stbi_image_free(image_data);
     const surface = SDL_CreateRGBSurfaceFrom(image_data, outWidth.*, outHeight.*, channels * 8, channels * outWidth.*, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
     const outTexture = ig.SDL_CreateTextureFromSurface(renderer, surface);
-    defer ig.SDL_FreeSurface(surface);
+    defer ig.SDL_DestroySurface(surface);
     return outTexture;
 }
 
@@ -477,17 +479,17 @@ pub fn main() !void {
     // NewGame
     var game = try newGame(alloc, renderer, texture_player, texture_grass);
 
-    const startTime:c_long = ig.clock();
-    var lastTick:c_long = 0;
+    const startTime: c_long = clib.clock();
+    var lastTick: c_long = 0;
 
     //-----------
     // Main loop     Game loop, draws each frame
     //-----------
     while (!game.inputs[@as(usize, @intFromEnum(Input.quit))]) {
         handleInput(&game);
-        const newTick = @divFloor(((ig.clock() - startTime) * 50), 1000);
-        var n = newTick - (lastTick + 1);
-        while (n >= 0) : (n -= 1) {
+        const newTick = @divFloor(((clib.clock() - startTime) * 50), 1000);
+        var n = lastTick + 1;
+        while (n <= newTick) : (n += 1) {
             physics(&game);
             moveCamera(&game);
         }

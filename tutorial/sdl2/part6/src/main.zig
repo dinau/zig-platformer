@@ -1,9 +1,7 @@
 const std = @import("std");
-const ig = @cImport({
-    @cInclude("SDL.h");
-    @cInclude("stb_image.h");
-    @cInclude("time.h");
-});
+const ig = @import("sdl");
+const stb = @import("stb");
+const clib = @import("clib");
 
 const TexturePtr = *ig.SDL_Texture;
 const RendererPtr = *ig.SDL_Renderer;
@@ -18,8 +16,15 @@ const Vec2i = struct {
 };
 
 const Input = enum { none, left, right, jump, restart, quit };
+
 const Collision = enum { x, y, corner };
-const Player = struct { texture: TexturePtr, pos: Vec2f, vel: Vec2f };
+
+const Player = struct {
+  texture: TexturePtr,
+  pos: Vec2f,
+  vel: Vec2f
+};
+
 const Map = struct {
     texture: TexturePtr,
     width: c_int,
@@ -406,8 +411,8 @@ fn moveCamera(self: *Game) void{
 //------------------------
 fn loadTextureFromFile(filename: [*c]const u8, renderer: RendererPtr, outWidth: *c_int, outHeight: *c_int) ?TexturePtr {
     var channels: c_int = 4;
-    const image_data = ig.stbi_load(filename, outWidth, outHeight, &channels, 4);
-    defer ig.stbi_image_free(image_data);
+    const image_data = stb.stbi_load(filename, outWidth, outHeight, &channels, 4);
+    defer stb.stbi_image_free(image_data);
     const surface = ig.SDL_CreateRGBSurfaceFrom(image_data, outWidth.*, outHeight.*, channels * 8, channels * outWidth.*, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
     const outTexture = ig.SDL_CreateTextureFromSurface(renderer, surface);
     defer ig.SDL_FreeSurface(surface);
@@ -456,7 +461,7 @@ pub fn main() !void {
     // NewGame
     var game = try newGame(alloc, renderer, texture_player, texture_grass);
 
-    const startTime:c_long = ig.clock();
+    const startTime:c_long = clib.clock();
     var lastTick: c_long = 0;
 
     //-----------
@@ -464,7 +469,7 @@ pub fn main() !void {
     //-----------
     while (!game.inputs[@as(usize, @intFromEnum(Input.quit))]) {
         handleInput(&game);
-        const newTick = @divFloor(((ig.clock() - startTime) * 50), 1000);
+        const newTick = @divFloor(((clib.clock() - startTime) * 50), 1000);
         var n = newTick - (lastTick + 1);
         while (n >= 0) : (n -= 1) {
             physics(&game);
