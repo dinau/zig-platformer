@@ -59,6 +59,9 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
   $ sudo apt install libopengl-dev libgl1-mesa-dev
   $ sudo apt install libsdl2-dev libsdl2-ttf-dev
   ```
+
+  See [SDL3 intallation on Linux](https://github.com/dinau/sdl3_nim?tab=readme-ov-file#for-linux-os)
+
 - MacOS: [P.R.](https://github.com/dinau/zig-platformer/pull/1)
 
 #### Build and run 
