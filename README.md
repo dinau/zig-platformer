@@ -18,9 +18,7 @@
 
 ---
 
-![alt](https://github.com/dinau/zig-platformer/actions/workflows/windows.yml/badge.svg)  ![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel.yml/badge.svg)  
-![alt](https://github.com/dinau/zig-platformer/actions/workflows/linux.yml/badge.svg)
-![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel_linux.yml/badge.svg)
+![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel_win.yml/badge.svg)  ![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel_linux.yml/badge.svg)  
 
 Tutorial: Writing a 2D Platform Game in [Zig language](https://ziglang.org) with SDL2 / SDL3 / SDL_ttf.
 
@@ -40,9 +38,9 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
 ---
 
-- [x] Windows:  [zig-0.14.0.zip](https://ziglang.org/builds/zig-windows-x86_64-0.14.0.zip) (2025/03)  
-- [x] Linux Debian families: [zig-0.14.0.tar.xz](https://ziglang.org/builds/zig-linux-x86_64-0.14.0.tar.xz)
-- [x] [zig-0.15.0-dev](https://ziglang.org/download)
+- [x] Windows:  [zig-x86_64-windows-0.14.1.zip](https://ziglang.org/download/0.14.1/zig-x86_64-windows-0.14.1.zip)
+- [x] Linux Debian families: [zig-x86_64-linux-0.14.1.tar.xz](https://ziglang.org/download/0.14.1/zig-x86_64-linux-0.14.1.tar.xz)
+- [x] or [zig-0.15.0-dev885](https://ziglang.org/download)
 
 #### Support OS
 
@@ -51,14 +49,14 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 |      | Windows | Linux | MacOS |
 | ---  | :---:   | :---: | :---: |
 | SDL2 | v       | v     | v     |
-| SDL3 | v       | -     | -     |
+| SDL3 | v       | v     | ?     |
 
 - Windows10 or later  
    - MSys2/MinGW basic commands (make, rm, cp, strip ...)
 - Linux: Debian families
 
   ```sh
-  $ sudo apt install xorg-dev libopengl-dev libgl1-mesa-dev
+  $ sudo apt install libopengl-dev libgl1-mesa-dev
   $ sudo apt install libsdl2-dev libsdl2-ttf-dev
   ```
 - MacOS: [P.R.](https://github.com/dinau/zig-platformer/pull/1)
@@ -83,7 +81,7 @@ or
 cd sdl2/part3
 zig build --release=fast
 cd zig-out/bin 
-platformer_part3.exe
+part3.exe
 ```
 
 You can build [SDL3](tutorial/sdl3) tutorials same as SDL2.

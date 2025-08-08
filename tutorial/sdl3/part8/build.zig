@@ -4,8 +4,15 @@ const builtin = @import("builtin");
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+
+    // Get executable name from current directory name
+    const allocator = b.allocator;
+    const abs_path = b.build_root.handle.realpathAlloc(allocator, ".") catch unreachable;
+    defer allocator.free(abs_path);
+    const exe_name = std.fs.path.basename(abs_path);
+
     const exe = b.addExecutable(.{
-        .name = "platformer_part8",
+        .name = exe_name,
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
@@ -68,12 +75,11 @@ pub fn build(b: *std.Build) void {
         sdl_ttf_step.addIncludePath(b.path(b.pathJoin(&.{ sdl_ttf_path, "include" })));
         sdl_ttf_step.addIncludePath(b.path(b.pathJoin(&.{ sdl_ttf_path, "include/SDL3_ttf" })));
     } else if (builtin.target.os.tag == .linux) { // ? TODO
-        const sdl_inc_path: std.Build.LazyPath = .{ .cwd_relative = "/usr/include" };
-        sdl_step.addIncludePath(sdl_inc_path);
-        sdl_step.addIncludePath(b.path("/usr/include/SDL3"));
-        sdl_ttf_step.addIncludePath(sdl_inc_path);
-        sdl_ttf_step.addIncludePath(b.path("/usr/include/SDL3"));
-        sdl_ttf_step.addIncludePath(b.path("/usr/include/SDL3_ttf"));
+        sdl_step.addIncludePath(    .{.cwd_relative = "/usr/local/include"});
+        sdl_step.addIncludePath(    .{.cwd_relative = "/usr/local/include/SDL3"});
+        sdl_ttf_step.addIncludePath(.{.cwd_relative = "/usr/local/include"});
+        sdl_ttf_step.addIncludePath(.{.cwd_relative = "/usr/local/include/SDL3"});
+        sdl_ttf_step.addIncludePath(.{.cwd_relative = "/usr/local/include/SDL3_ttf"});
     }
 
     // clib module
@@ -100,29 +106,10 @@ pub fn build(b: *std.Build) void {
     //------
     const static_link: bool = false;
     if (builtin.target.os.tag == .windows) {
-        exe.linkSystemLibrary("gdi32");
-        exe.linkSystemLibrary("imm32");
-        exe.linkSystemLibrary("advapi32");
-        exe.linkSystemLibrary("comdlg32");
-        exe.linkSystemLibrary("dinput8");
-        exe.linkSystemLibrary("dxerr8");
-        exe.linkSystemLibrary("dxguid");
-        exe.linkSystemLibrary("gdi32");
-        exe.linkSystemLibrary("hid");
-        exe.linkSystemLibrary("kernel32");
-        exe.linkSystemLibrary("ole32");
-        exe.linkSystemLibrary("oleaut32");
-        exe.linkSystemLibrary("setupapi");
-        exe.linkSystemLibrary("shell32");
-        exe.linkSystemLibrary("user32");
-        exe.linkSystemLibrary("uuid");
-        exe.linkSystemLibrary("version");
-        exe.linkSystemLibrary("winmm");
-        exe.linkSystemLibrary("winspool");
-        exe.linkSystemLibrary("ws2_32");
-        exe.linkSystemLibrary("opengl32");
-        exe.linkSystemLibrary("shell32");
-        exe.linkSystemLibrary("user32");
+        const libs = [_][]const u8{ "gdi32", "imm32", "advapi32", "comdlg32", "dinput8", "dxerr8", "dxguid", "gdi32", "hid", "kernel32", "ole32", "oleaut32", "setupapi", "shell32", "user32", "uuid", "version", "winmm", "winspool", "ws2_32", "opengl32", "shell32", "user32" };
+        for (libs) |lib| {
+            exe.root_module.linkSystemLibrary(lib, .{});
+        }
         if (false) { // Static link on Windows
             exe.addObjectFile(b.path(b.pathJoin(&.{ sdl_path, "lib", "libSDL3.a" })));
         } else { // Dynamic link on Windows
@@ -130,11 +117,11 @@ pub fn build(b: *std.Build) void {
             exe.addObjectFile(b.path(b.pathJoin(&.{ sdl_ttf_path, "lib", "libSDL3_ttf.dll.a" })));
         }
     } else if (builtin.target.os.tag == .macos) {
-        exe.linkSystemLibrary("sdl");
+        exe.root_module.linkSystemLibrary("sdl3", .{});
     } else if (builtin.target.os.tag == .linux) {
-        exe.linkSystemLibrary("glfw3");
-        exe.linkSystemLibrary("GL");
-        exe.linkSystemLibrary("sdl");
+        exe.root_module.linkSystemLibrary("GL", .{});
+        exe.root_module.linkSystemLibrary("SDL3",  .{});
+        exe.root_module.linkSystemLibrary("SDL3_ttf",  .{});
     }
 
     b.installArtifact(exe);
@@ -146,7 +133,7 @@ pub fn build(b: *std.Build) void {
     const TRes = struct { file: []const u8, dir: []const u8 };
     const dir_tutorial = "../../";
     const resBin = [_]TRes{
-        TRes{ .file = "bob.png", .dir = dir_tutorial },
+        TRes{ .file = "Bob.png", .dir = dir_tutorial },
         TRes{ .file = "grass.png", .dir = dir_tutorial },
         TRes{ .file = "default.map", .dir = dir_tutorial },
         TRes{ .file = "DejaVuSans.ttf", .dir = dir_tutorial },

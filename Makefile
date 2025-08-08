@@ -7,6 +7,7 @@ else
 all: sdl2
 endif
 
+
 sdl2:
 	@echo --------------------
 	@echo    $@ compiling
@@ -19,7 +20,6 @@ sdl2_clean:
 	@echo --------------------
 	$(foreach exdir,$(PART_NUMS_SDL2), $(call def_make_sdl2,part$(exdir),clean))
 
-ifeq ($(OS),Windows_NT)
 sdl3:
 	@echo
 	@echo
@@ -33,7 +33,6 @@ sdl3_clean:
 	@echo    SDL3 cleaning
 	@echo --------------------
 	$(foreach exdir,$(PART_NUMS_SDL3), $(call def_make_sdl3,part$(exdir),clean))
-endif
 
 ifeq ($(OS),Windows_NT)
 clean: sdl2_clean sdl3_clean

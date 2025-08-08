@@ -468,7 +468,7 @@ pub fn main() !void {
 
     var w: c_int = undefined;
     var h: c_int = undefined;
-    const fname: [*c]const u8 = "bob.png";
+    const fname: [*c]const u8 = "Bob.png";
     const texture_player = loadTextureFromFile(fname, renderer, &w, &h).?;
     defer ig.SDL_DestroyTexture(texture_player);
     //

@@ -1,4 +1,4 @@
-TARGET = platformer_$(notdir $(CURDIR))
+TARGET = $(notdir $(CURDIR))
 
 ifeq ($(OS),Windows_NT)
 	EXE = .exe
@@ -12,7 +12,7 @@ all:
 	@echo
 	@echo === $(TARGET) ===  zig-$(ZIG_VER)
 	zig build $(OPT)
-	@-strip zig-out/bin/$(TARGET)$(EXE)
+	@#-strip zig-out/bin/$(TARGET)$(EXE)
 
 run: all
 	(cd zig-out/bin; ./$(TARGET)$(EXE))
@@ -25,5 +25,5 @@ fmt:
 
 clean:
 	@echo Clean: $(CURDIR)
-	@-rm -rf .zig-cache zig.cache
+	@-rm -rf .zig-cache zig-cache
 	@-rm -rf zig-out
