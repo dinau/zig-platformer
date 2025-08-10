@@ -1,5 +1,5 @@
 const std = @import("std");
-const ig = @import("sdl");
+const ig = @import("sdl3");
 const stb = @import("stb");
 
 const TexturePtr  = *ig.SDL_Texture;

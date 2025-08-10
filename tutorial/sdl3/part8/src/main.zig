@@ -1,6 +1,6 @@
 const builtin = @import("builtin");
 const std = @import("std");
-const ig = @import("sdl");
+const ig = @import("sdl3");
 const stb = @import("stb");
 const clib = @import("clib");
 
@@ -153,15 +153,15 @@ fn renderTextSub(renderer: RendererPtr, font: FontPtr, text: []u8, x: c_int, y: 
     if (surface == null) {
         std.debug.print("{s}\n", .{"Could not render text surface in TTF_RenderText_Blended()"});
     }
-    _ = ig.SDL_SetSurfaceAlphaMod(surface, color.a);
+    _ = ig.SDL_SetSurfaceAlphaMod(@ptrCast(surface), color.a);
     const source = newFRect(0, 0, @floatFromInt(surface.?.*.w), @floatFromInt(surface.?.*.h));
     const dest = newFRect(@floatFromInt(x - outline), @floatFromInt(y - outline), @floatFromInt(surface.?.*.w), @floatFromInt(surface.?.*.h));
-    const texture = ig.SDL_CreateTextureFromSurface(renderer, surface);
+    const texture = ig.SDL_CreateTextureFromSurface(renderer, @ptrCast(surface));
     if (texture == null) {
         std.debug.print("{s}\n", .{"Could not create texture from rendered text in SDL_CreateTextureFromSurface()"});
         return error.SDL_CreateTextureFromSurface;
     }
-    ig.SDL_DestroySurface(surface);
+    ig.SDL_DestroySurface(@ptrCast(surface));
 
     _ = ig.SDL_RenderTextureRotated(renderer, texture, &source, &dest, 0.0, null, ig.SDL_FLIP_NONE);
     ig.SDL_DestroyTexture(texture);

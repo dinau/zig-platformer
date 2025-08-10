@@ -1,6 +1,6 @@
 const builtin = @import("builtin");
 const std = @import("std");
-const ig = @import("sdl");
+const ig = @import("sdl2");
 const stb = @import("stb");
 const clib = @import("clib");
 

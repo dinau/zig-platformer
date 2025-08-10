@@ -1,0 +1,12 @@
+.{
+    .name = .sdl3_ttf,
+    .version = "0.0.1",
+    .fingerprint = 0x8ea78b7c31f9f3a5 ,
+    .minimum_zig_version = "0.14.1",
+    .dependencies = .{},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}

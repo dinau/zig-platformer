@@ -1,5 +1,5 @@
 const std = @import("std");
-const ig = @import("sdl");
+const ig = @import("sdl2");
 
 const MainWinWidth: i32 = 1280;
 const MainWinHeight: i32 = 720;

@@ -20,8 +20,7 @@ run: all
 .PHONY: fmt clean run
 
 fmt:
-	zig fmt src/main.zig
-	zig fmt build.zig
+	zig fmt .
 
 clean:
 	@echo Clean: $(CURDIR)
