@@ -190,23 +190,22 @@ fn newPlayer(texture: TexturePtr) Player {
 //-----------
 //--- newMap     -- : Map type
 //-----------
-fn newMap(alloc: std.mem.Allocator, texture: TexturePtr, file: []const u8) !Map {
-    var map = Map{ .width = 0, .height = 0, .texture = texture, .tiles = std.ArrayList(u8).init(alloc) };
-    var fp = try std.fs.cwd().openFile(file, .{});
+fn newMap(alloc: std.mem.Allocator, texture: TexturePtr, mapfile: []const u8) !Map {
+    var map = Map{ .width = 0, .height = 0, .texture = texture, .tiles = try std.ArrayList(u8).initCapacity(alloc, 200) }; // TODO deinit ArrayList
+    var fp = try std.fs.cwd().openFile(mapfile, .{});
     defer fp.close();
-    var buf_reader = std.io.bufferedReader(fp.reader());
-    var in_stream = buf_reader.reader();
+    const in_stream = fp.deprecatedReader();
     var buf: [1024]u8 = undefined;
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
         var width: c_int = 0;
         var it = std.mem.tokenizeAny(u8, line, " ");
         while (it.next()) |word| {
             const n = try std.fmt.parseInt(u8, word, 10);
-            try map.tiles.append(n);
+            try map.tiles.append(alloc, n);
             width += 1;
         }
         if ((map.width > 0) and (map.width != width)) {
-            std.debug.print("Incompatible line length in map:  {s} ", .{file});
+            std.debug.print("Incompatible line length in map:  {s} ", .{mapfile});
         }
         map.width = width;
         map.height += 1;

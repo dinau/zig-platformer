@@ -214,18 +214,17 @@ fn newPlayer(texture: TexturePtr) Player {
 //--- newMap     -- : Map type
 //-----------
 fn newMap(alloc: std.mem.Allocator, texture: TexturePtr, mapfile: []const u8) !Map {
-    var map = Map{ .width = 0, .height = 0, .texture = texture, .tiles = std.ArrayList(u8).init(alloc) };
+    var map = Map{ .width = 0, .height = 0, .texture = texture, .tiles = try std.ArrayList(u8).initCapacity(alloc, 200) }; // TODO deinit ArrayList
     var fp = try std.fs.cwd().openFile(mapfile, .{});
     defer fp.close();
-    var buf_reader = std.io.bufferedReader(fp.reader());
-    var in_stream = buf_reader.reader();
+    const in_stream = fp.deprecatedReader();
     var buf: [1024]u8 = undefined;
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
         var width: c_int = 0;
         var it = std.mem.tokenizeAny(u8, line, " ");
         while (it.next()) |word| {
             const n = try std.fmt.parseInt(u8, word, 10);
-            try map.tiles.append(n);
+            try map.tiles.append(alloc, n);
             width += 1;
         }
         if ((map.width > 0) and (map.width != width)) {
@@ -276,7 +275,7 @@ fn formatTime(alloc: std.mem.Allocator, ticks: i32) ![]u8 {
     const mins: u32 = @intCast(@divFloor(@divFloor(ticks, 50), 60));
     const secs: u32 = @intCast(@rem(@divFloor(ticks, 50), 60));
     const cents: u32 = @intCast(@rem(ticks, 50) * 2);
-    return std.fmt.allocPrintZ(alloc, "{d:02}:{d:02}:{d:02}", .{ mins, secs, cents });
+    return std.fmt.allocPrint(alloc, "{d:02}:{d:02}:{d:02}", .{ mins, secs, cents });
 }
 
 //---------------
