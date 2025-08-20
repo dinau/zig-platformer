@@ -18,7 +18,7 @@
 
 ---
 
-![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel_win.yml/badge.svg)  ![alt](https://github.com/dinau/zig-platformer/actions/workflows/rel_linux.yml/badge.svg)  
+![alt](https://github.com/dinau/zig-platformer/actions/workflows/dev_win.yml/badge.svg)  ![alt](https://github.com/dinau/zig-platformer/actions/workflows/dev_linux.yml/badge.svg)  
 
 Tutorial: Writing a 2D Platform Game in [Zig language](https://ziglang.org) with SDL2 / SDL3 / SDL_ttf.
 
