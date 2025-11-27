@@ -25,7 +25,7 @@ weak_library_names=''
 # Version information for libSDL2.
 current=3200
 age=3200
-revision=4
+revision=10
 
 # Is this an already installed library?
 installed=yes
@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/tmp/tardir/SDL2-2.32.4/build-mingw/install-x86_64-w64-mingw32/lib'
+libdir='/tmp/tardir/SDL2-2.32.10/build-mingw/install-x86_64-w64-mingw32/lib'

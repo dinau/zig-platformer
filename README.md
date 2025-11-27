@@ -18,8 +18,6 @@
 
 ---
 
-![alt](https://github.com/dinau/zig-platformer/actions/workflows/dev_win.yml/badge.svg)  ![alt](https://github.com/dinau/zig-platformer/actions/workflows/dev_linux.yml/badge.svg)  
-
 Tutorial: Writing a 2D Platform Game in [Zig language](https://ziglang.org) with SDL2 / SDL3 / SDL_ttf.
 
 This repository has been inherited from
@@ -34,11 +32,14 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
 ### Prerequisites
 
-#### Zig version
+#### Versions
 
 ---
 
-0.15.0-dev.1593+399bace2f
+zig-0.15.2  
+SDL2: 2.32.10  
+SDL2: 3.2.26  
+SDL_ttf: 3.2.2  
 
 #### Support OS
 
@@ -46,10 +47,10 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
 |      | Windows | Linux | MacOS |
 | ---  | :---:   | :---: | :---: |
-| SDL2 | v       | v     | v     |
-| SDL3 | v       | v     | ?     |
+| SDL2 | YES     | YES   | YES   |
+| SDL3 | YES     | YES   | ?     |
 
-- Windows10 or later  
+- Windows11
    - MSys2/MinGW basic commands (make, rm, cp, strip ...)
 - Linux: Debian families
 
@@ -73,19 +74,19 @@ cd zig-platformer/tutorial
 For instance,
 
 ```sh
-cd sdl2/part3
+cd sdl3/part3
 make run       
 ```
 or 
 
 ```sh
-cd sdl2/part3
+cd sdl3/part3
 zig build --release=fast
 cd zig-out/bin 
 part3.exe
 ```
 
-You can build [SDL3](tutorial/sdl3) tutorials same as SDL2.
+You can build [SDL2](tutorial/sdl2) tutorials same as SDL3.
 
 #### Key operation
 

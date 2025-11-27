@@ -42,11 +42,13 @@ endif
 
 define def_make_sdl2
 	@$(MAKE) -C tutorial/sdl2/$(1) $(2)
+	@$(MAKE) -C tutorial/sdl2/$(1) cleancache
 
 endef
 
 define def_make_sdl3
 	@$(MAKE) -C tutorial/sdl3/$(1) $(2)
+	@$(MAKE) -C tutorial/sdl3/$(1) cleancache
 
 endef
 

@@ -6,7 +6,6 @@ endif
 
 ZIG_VER = $(shell zig version)
 
-OPT += --release=fast
 
 all:
 	@echo
@@ -26,3 +25,6 @@ clean:
 	@echo Clean: $(CURDIR)
 	@-rm -rf .zig-cache zig-cache
 	@-rm -rf zig-out
+
+cleancache:
+	@-rm -rf .zig-cache

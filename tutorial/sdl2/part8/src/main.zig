@@ -149,8 +149,10 @@ fn renderMap(renderer: RendererPtr, map: Map, camera: ig.SDL_FPoint) void {
 //--- renderTextSub
 //------------------
 fn renderTextSub(renderer: RendererPtr, font: FontPtr, text: []u8, x: c_int, y: c_int, outline: c_int, color: Color) !void {
+    var buf: [256:0]u8 = undefined;
+    const cText = try std.fmt.bufPrintZ(&buf, "{s}", .{text});
     ig.TTF_SetFontOutline(font, outline);
-    const surface = ig.TTF_RenderText_Blended(font, text.ptr, color);
+    const surface = ig.TTF_RenderText_Blended(font, cText, color);
     if (surface == null) {
         std.debug.print("{s}\n", .{"Could not render text surface in TTF_RenderText_Blended()"});
     }
@@ -180,7 +182,7 @@ fn renderText(self: *Game, text: []u8, x: c_int, y: c_int, color: Color) !void {
 //--- renderTextC
 //----------------
 fn renderTextC(self: *Game, text: []const u8, x: c_int, y: c_int, color: Color) !void {
-    var sbuf: [50]u8 = undefined;
+    var sbuf: [500]u8 = undefined;
     const slc = try std.fmt.bufPrint(&sbuf, "{s}", .{text});
     try renderText(self, slc, x, y, color);
 }

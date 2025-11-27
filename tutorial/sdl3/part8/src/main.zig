@@ -148,8 +148,10 @@ fn renderMap(renderer: RendererPtr, map: Map, camera: ig.SDL_FPoint) void {
 //--- renderTextSub
 //------------------
 fn renderTextSub(renderer: RendererPtr, font: FontPtr, text: []u8, x: c_int, y: c_int, outline: c_int, color: Color) !void {
+    var buf: [256:0]u8 = undefined;
+    const cText = try std.fmt.bufPrintZ(&buf, "{s}", .{text});
     _ = ig.TTF_SetFontOutline(font, outline);
-    const surface = ig.TTF_RenderText_Blended(font, text.ptr, text.len, color);
+    const surface = ig.TTF_RenderText_Blended(font, cText, text.len, color);
     if (surface == null) {
         std.debug.print("{s}\n", .{"Could not render text surface in TTF_RenderText_Blended()"});
     }
@@ -398,7 +400,9 @@ fn render(alloc: std.mem.Allocator, self: *Game, tick: c_int) !void {
         try renderTextC(self, "Quit     : Q, Esc", 50, base + colm * 5, white);
         try renderTextC(self, "Zig-" ++ builtin.zig_version_string, 50, base + colm * 7, white);
 
-        slc = try std.fmt.bufPrintZ(&sbuf, "SDL3   : {s}", .{ig.SDL_GetRevision()});
+        var it = std.mem.splitScalar(u8, std.mem.span(ig.SDL_GetRevision()), '-');
+        _ = it.next();
+        slc = try std.fmt.bufPrintZ(&sbuf, "SDL3   : {s}", .{it.next().?});
         try renderText(self, slc, 50, base + colm * 9, white);
 
         const iver: u32 = @intCast(ig.TTF_Version());
