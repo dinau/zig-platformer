@@ -4,7 +4,7 @@ const builtin = @import("builtin");
 pub fn copyAssets(b: *std.Build, assets: [][]const u8) void {
     for (assets) |asset| {
         const dir_assets = "../../";
-        const resource = b.addInstallFile(b.path(b.pathJoin(&.{dir_assets, asset})), b.pathJoin(&.{"bin/" , asset}));
+        const resource = b.addInstallFile(b.path(b.pathJoin(&.{ dir_assets, asset })), b.pathJoin(&.{ "bin/", asset }));
         b.getInstallStep().dependOn(&resource.step);
     }
 }
@@ -32,7 +32,7 @@ pub fn copydll_sdl2_ttf(b: *std.Build) void {
     }
 }
 
-pub fn runCmd(b: *std.Build,  exe: *std.Build.Step.Compile ) void {
+pub fn runCmd(b: *std.Build, exe: *std.Build.Step.Compile) void {
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
     if (b.args) |args| {

@@ -112,14 +112,14 @@ fn renderTee(renderer: RendererPtr, texture: TexturePtr, pos: Vec2f) void {
     const x = pos.x;
     const y = pos.y;
     const bodyParts = [8]TBodyParts{
-        newBodyParts(newFRect(192, 64, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet shadow
-        newBodyParts(newFRect(96,   0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body shadow
-        newBodyParts(newFRect(192, 64, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet shadow
-        newBodyParts(newFRect(192, 32, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet
-        newBodyParts(newFRect(0,    0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body
-        newBodyParts(newFRect(192, 32, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet
-        newBodyParts(newFRect(64,  96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE),       //-- left eye
-        newBodyParts(newFRect(64,  96, 32, 32), newFRect(x - 6,  y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
+        newBodyParts(newFRect(192, 64, 64, 32), newFRect(x - 60, y, 96, 48), ig.SDL_FLIP_NONE), //-- back feet shadow
+        newBodyParts(newFRect(96, 0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE), //-- body shadow
+        newBodyParts(newFRect(192, 64, 64, 32), newFRect(x - 36, y, 96, 48), ig.SDL_FLIP_NONE), //-- front feet shadow
+        newBodyParts(newFRect(192, 32, 64, 32), newFRect(x - 60, y, 96, 48), ig.SDL_FLIP_NONE), //-- back feet
+        newBodyParts(newFRect(0, 0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE), //-- body
+        newBodyParts(newFRect(192, 32, 64, 32), newFRect(x - 36, y, 96, 48), ig.SDL_FLIP_NONE), //-- front feet
+        newBodyParts(newFRect(64, 96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE), //-- left eye
+        newBodyParts(newFRect(64, 96, 32, 32), newFRect(x - 6, y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
     };
     for (bodyParts) |v| {
         _ = ig.SDL_RenderTextureRotated(renderer, texture, &v.src, &v.dest, 0.0, null, v.flip);
@@ -149,7 +149,12 @@ fn renderMap(renderer: RendererPtr, map: Map, camera: ig.SDL_FPoint) void {
 //------------------
 fn renderTextSub(renderer: RendererPtr, font: FontPtr, text: []u8, x: c_int, y: c_int, outline: c_int, color: Color) !void {
     var buf: [256:0]u8 = undefined;
-    const cText = try std.fmt.bufPrintZ(&buf, "{s}", .{text});
+    var cText:[*c]u8 = undefined;
+    if (builtin.zig_version.minor >= 17) {
+        cText = try std.fmt.bufPrintSentinel(&buf, "{s}", .{text},0);
+    }else{
+        cText = try std.fmt.bufPrintZ(&buf, "{s}", .{text});
+    }
     _ = ig.TTF_SetFontOutline(font, outline);
     const surface = ig.TTF_RenderText_Blended(font, cText, text.len, color);
     if (surface == null) {
@@ -183,7 +188,13 @@ fn renderText(self: *Game, text: []u8, x: c_int, y: c_int, color: Color) !void {
 //----------------
 fn renderTextC(self: *Game, text: []const u8, x: c_int, y: c_int, color: Color) !void {
     var sbuf: [50]u8 = undefined;
-    const slc = try std.fmt.bufPrintZ(&sbuf, "{s}", .{text});
+    var slc: []u8 = undefined;
+    if (builtin.zig_version.minor >= 17) {
+        slc = try std.fmt.bufPrintSentinel(&sbuf, "{s}", .{text},0);
+    } else {
+        slc = try std.fmt.bufPrintZ(&sbuf, "{s}", .{text});
+    }
+
     try renderText(self, slc, x, y, color);
 }
 
@@ -262,14 +273,18 @@ fn newPlayer(texture: TexturePtr) Player {
 
 //-----------
 //--- newMap     -- : Map type
-//-----------
+//----------
+const io = std.Io.Threaded.global_single_threaded.io();
 fn newMap(alloc: std.mem.Allocator, texture: TexturePtr, mapfile: []const u8) !Map {
     var map = Map{ .width = 0, .height = 0, .texture = texture, .tiles = try std.ArrayList(u8).initCapacity(alloc, 200) }; // TODO deinit ArrayList
-    var fp = try std.fs.cwd().openFile(mapfile, .{});
-    defer fp.close();
-    const in_stream = fp.deprecatedReader();
-    var buf: [1024]u8 = undefined;
-    while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
+    var fp = try std.Io.Dir.cwd().openFile(io, mapfile, .{});
+    defer fp.close(io);
+
+    var file_buf: [1024]u8 = undefined;
+    var file_reader: std.Io.File.Reader = fp.reader(io, &file_buf);
+    const reader = &file_reader.interface;
+    while (reader.takeDelimiter('\n')) |maybe_line| {
+        const line = maybe_line orelse break;
         var width: c_int = 0;
         var it = std.mem.tokenizeAny(u8, line, " ");
         while (it.next()) |word| {
@@ -282,6 +297,9 @@ fn newMap(alloc: std.mem.Allocator, texture: TexturePtr, mapfile: []const u8) !M
         }
         map.width = width;
         map.height += 1;
+    } else |err| switch (err) {
+        error.ReadFailed => return file_reader.err.?,
+        else => return err,
     }
     return map;
 }
@@ -381,12 +399,20 @@ fn render(alloc: std.mem.Allocator, self: *Game, tick: c_int) !void {
     if (time.begin >= 0) {
         try renderText(self, try formatTime(alloc, tick - time.begin), 50, 100, white);
     } else if (time.finish >= 0) {
+    if (builtin.zig_version.minor >= 17) {
+        slc = try std.fmt.bufPrintSentinel(&sbuf, "{s}{s}", .{ "Finished in: ", try formatTime(alloc, time.finish) },0);
+    }else{
         slc = try std.fmt.bufPrintZ(&sbuf, "{s}{s}", .{ "Finished in: ", try formatTime(alloc, time.finish) });
+    }
         try renderText(self, slc, 50, 100, white);
     }
     if (time.best >= 0) {
         const green = newColor(0, 255, 0, 255);
+    if (builtin.zig_version.minor >= 17) {
+        slc = try std.fmt.bufPrintSentinel(&sbuf, "{s}{s}", .{ "Best time  : ", try formatTime(alloc, time.best)}, 0);
+    }else{
         slc = try std.fmt.bufPrintZ(&sbuf, "{s}{s}", .{ "Best time  : ", try formatTime(alloc, time.best) });
+    }
         try renderText(self, slc, 50, 150, green);
     }
     if (time.begin < 0) {
@@ -402,14 +428,24 @@ fn render(alloc: std.mem.Allocator, self: *Game, tick: c_int) !void {
 
         var it = std.mem.splitScalar(u8, std.mem.span(ig.SDL_GetRevision()), '-');
         _ = it.next();
-        slc = try std.fmt.bufPrintZ(&sbuf, "SDL3   : {s}", .{it.next().?});
+        _ = it.next();
+        if (builtin.zig_version.minor >= 17) {
+            slc = try std.fmt.bufPrintSentinel(&sbuf, "SDL3   : {s}", .{it.next().?},0);
+        }else{
+            slc = try std.fmt.bufPrintZ(&sbuf, "SDL3   : {s}", .{it.next().?});
+        }
         try renderText(self, slc, 50, base + colm * 9, white);
 
         const iver: u32 = @intCast(ig.TTF_Version());
         const ver = iver / 1000_000;
         const rev = (iver - ver * 1000_000) / 1000;
         const patch = iver - ver * 1000_000 - rev * 1000;
-        slc = try std.fmt.bufPrintZ(&sbuf, "SDL_ttf: {d}.{d}.{d}", .{ ver, rev, patch });
+        if (builtin.zig_version.minor >= 17) {
+            slc = try std.fmt.bufPrintSentinel(&sbuf, "SDL_ttf: {d}.{d}.{d}", .{ ver, rev, patch },0);
+        }else{
+            slc = try std.fmt.bufPrintZ(&sbuf, "SDL_ttf: {d}.{d}.{d}", .{ ver, rev, patch });
+        }
+
         try renderText(self, slc, 50, base + colm * 10, white);
         try renderTextC(self, "Zig-Platformer-SDL3", 50, base + colm * 14, blue);
     }

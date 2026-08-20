@@ -6,10 +6,7 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     // Get executable name from current directory name
-    const allocator = b.allocator;
-    const abs_path = b.build_root.handle.realpathAlloc(allocator, ".") catch unreachable;
-    defer allocator.free(abs_path);
-    const mod_name = std.fs.path.basename(abs_path);
+    const mod_name = "sdl3";
 
     // SDL3
     const sdl_base = "../../sdl";
@@ -63,8 +60,8 @@ pub fn build(b: *std.Build) void {
         if (false) { // Static link on Windows
             lib.addObjectFile(b.path(b.pathJoin(&.{ sdl_path, "lib", "libSDL3.a" })));
         } else { // Dynamic link on Windows
-            lib.addObjectFile(b.path(b.pathJoin(&.{ sdl_path, "lib", "libSDL3.dll.a" })));
-            lib.addObjectFile(b.path(b.pathJoin(&.{ sdl_ttf_path, "lib", "libSDL3_ttf.dll.a" })));
+            lib.root_module.addObjectFile(b.path(b.pathJoin(&.{ sdl_path, "lib", "libSDL3.dll.a" })));
+            lib.root_module.addObjectFile(b.path(b.pathJoin(&.{ sdl_ttf_path, "lib", "libSDL3_ttf.dll.a" })));
         }
     } else if (builtin.target.os.tag == .macos) {
         lib.root_module.linkSystemLibrary("sdl3", .{});

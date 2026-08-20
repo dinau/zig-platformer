@@ -21,8 +21,8 @@ pub fn build(b: *std.Build) void {
     });
 
     const lib_names = [_][]const u8{"sdl2"};
-    for (lib_names)|lib_name|{
-    main_mod.addImport(lib_name, b.lazyDependency(lib_name, .{}).?.module(lib_name));
+    for (lib_names) |lib_name| {
+        main_mod.addImport(lib_name, b.lazyDependency(lib_name, .{}).?.module(lib_name));
     }
 
     const exe = b.addExecutable(.{
@@ -45,7 +45,6 @@ pub fn build(b: *std.Build) void {
 
     // Copy SDL2 dlls to bin folder
     blib.copydll_sdl2(b);
-
 
     // Install run command
     blib.runCmd(b, exe);

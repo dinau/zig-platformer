@@ -2,7 +2,7 @@ const std = @import("std");
 const ig = @import("sdl3");
 const stb = @import("stb");
 
-const TexturePtr  = *ig.SDL_Texture;
+const TexturePtr = *ig.SDL_Texture;
 const RendererPtr = *ig.SDL_Renderer;
 
 const Vec2f = struct {
@@ -80,14 +80,14 @@ fn renderTee(renderer: RendererPtr, texture: TexturePtr, pos: Vec2f) void {
     const x = pos.x;
     const y = pos.y;
     const bodyParts = [8]TBodyParts{
-        newBodyParts(newFRect(192, 64, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet shadow
-        newBodyParts(newFRect(96,   0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body shadow
-        newBodyParts(newFRect(192, 64, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet shadow
-        newBodyParts(newFRect(192, 32, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet
-        newBodyParts(newFRect(0,    0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body
-        newBodyParts(newFRect(192, 32, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet
-        newBodyParts(newFRect(64,  96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE),       //-- left eye
-        newBodyParts(newFRect(64,  96, 32, 32), newFRect(x - 6,  y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
+        newBodyParts(newFRect(192, 64, 64, 32), newFRect(x - 60, y, 96, 48), ig.SDL_FLIP_NONE), //-- back feet shadow
+        newBodyParts(newFRect(96, 0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE), //-- body shadow
+        newBodyParts(newFRect(192, 64, 64, 32), newFRect(x - 36, y, 96, 48), ig.SDL_FLIP_NONE), //-- front feet shadow
+        newBodyParts(newFRect(192, 32, 64, 32), newFRect(x - 60, y, 96, 48), ig.SDL_FLIP_NONE), //-- back feet
+        newBodyParts(newFRect(0, 0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE), //-- body
+        newBodyParts(newFRect(192, 32, 64, 32), newFRect(x - 36, y, 96, 48), ig.SDL_FLIP_NONE), //-- front feet
+        newBodyParts(newFRect(64, 96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE), //-- left eye
+        newBodyParts(newFRect(64, 96, 32, 32), newFRect(x - 6, y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
     };
     for (bodyParts) |v| {
         _ = ig.SDL_RenderTextureRotated(renderer, texture, &v.src, &v.dest, 0.0, null, v.flip);

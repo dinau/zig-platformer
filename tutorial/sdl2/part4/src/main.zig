@@ -17,11 +17,7 @@ const Vec2i = struct {
 
 const Input = enum { none, left, right, jump, restart, quit };
 
-const Player = struct {
-  texture: TexturePtr,
-  pos: Vec2f,
-  vel: Vec2f
-};
+const Player = struct { texture: TexturePtr, pos: Vec2f, vel: Vec2f };
 
 const Map = struct {
     texture: TexturePtr,
@@ -39,7 +35,7 @@ const Game = struct {
 };
 
 const TilesPerRow = 16;
-const TileSize   = vec2i(64, 64);
+const TileSize = vec2i(64, 64);
 
 const MainWinWidth: i32 = 1280;
 const MainWinHeight: i32 = 720;
@@ -54,29 +50,29 @@ fn write(str: []const u8) void { // for print
 //-----------
 //-- vec2f
 //-----------
-inline fn vec2f(x:f32, y:f32) Vec2f {
-  return Vec2f{ .x = x, .y = y};
+inline fn vec2f(x: f32, y: f32) Vec2f {
+    return Vec2f{ .x = x, .y = y };
 }
 
 //-----------
 //-- vec2i
 //-----------
-inline fn vec2i(x:i32, y:i32) Vec2i {
-  return Vec2i{ .x = x, .y = y};
+inline fn vec2i(x: i32, y: i32) Vec2i {
+    return Vec2i{ .x = x, .y = y };
 }
 
 //-----------
 //-- newRect
 //-----------
-inline fn newRect(x:i32, y:i32, w:i32, h:i32) ig.SDL_Rect {
-  return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h};
+inline fn newRect(x: i32, y: i32, w: i32, h: i32) ig.SDL_Rect {
+    return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h };
 }
 
 //-----------
 //-- newFRect
 //-----------
-inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
-  return ig.SDL_FRect{.x = x, .y = y, .w = w, .h = h};
+inline fn newFRect(x: f32, y: f32, w: f32, h: f32) ig.SDL_FRect {
+    return ig.SDL_FRect{ .x = x, .y = y, .w = w, .h = h };
 }
 
 //----------------
@@ -84,7 +80,7 @@ inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
 //----------------
 const TBodyParts = struct { rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32 };
 inline fn newBodyParts(rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32) TBodyParts {
- return TBodyParts{.rect = rect, .frect = frect, .flip = flip};
+    return TBodyParts{ .rect = rect, .frect = frect, .flip = flip };
 }
 
 //--------------
@@ -94,14 +90,14 @@ fn renderTee(renderer: RendererPtr, texture: TexturePtr, pos: Vec2f) void {
     const x = pos.x;
     const y = pos.y;
     const bodyParts = [8]TBodyParts{
-        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet shadow
-        newBodyParts(newRect(96,   0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body shadow
-        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet shadow
-        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet
-        newBodyParts(newRect(0,    0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body
-        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet
-        newBodyParts(newRect(64,  96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE),       //-- left eye
-        newBodyParts(newRect(64,  96, 32, 32), newFRect(x - 6,  y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
+        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 60, y, 96, 48), ig.SDL_FLIP_NONE), //-- back feet shadow
+        newBodyParts(newRect(96, 0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE), //-- body shadow
+        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 36, y, 96, 48), ig.SDL_FLIP_NONE), //-- front feet shadow
+        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 60, y, 96, 48), ig.SDL_FLIP_NONE), //-- back feet
+        newBodyParts(newRect(0, 0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE), //-- body
+        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 36, y, 96, 48), ig.SDL_FLIP_NONE), //-- front feet
+        newBodyParts(newRect(64, 96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE), //-- left eye
+        newBodyParts(newRect(64, 96, 32, 32), newFRect(x - 6, y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
     };
     for (bodyParts) |v| {
         _ = ig.SDL_RenderCopyExF(renderer, texture, &v.rect, &v.frect, 0.0, null, v.flip);

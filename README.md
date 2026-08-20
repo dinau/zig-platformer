@@ -36,10 +36,15 @@ Skin database [https://ddnet.org/skins](https://ddnet.org/skins)
 
 ---
 
-zig-0.15.2  
-SDL2: 2.32.10  
-SDL2: 3.2.26  
-SDL_ttf: 3.2.2  
+- SDL2 examples:
+   - [x] zig-0.15.2  
+   - SDL2: 2.32.10  
+
+- SDL3 examples:
+   - [x] zig-0.16.0  
+   - [x] zig-0.17.0-dev  
+   - SDL3: 3.4.14  
+   - SDL_ttf: 3.2.2  
 
 #### Support OS
 
@@ -51,7 +56,7 @@ SDL_ttf: 3.2.2
 | SDL3 | YES     | YES   | ?     |
 
 - Windows11
-   - MSys2/MinGW basic commands (make, rm, cp, strip ...)
+   - MSys2/MinGW basic commands (make, rm, cp, ...)
 - Linux: Debian families
 
   ```sh

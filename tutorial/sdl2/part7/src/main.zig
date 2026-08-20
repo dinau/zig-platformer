@@ -20,16 +20,16 @@ const Input = enum { none, left, right, jump, restart, quit };
 const Collision = enum { x, y, corner };
 
 const Time = struct {
-  begin: i32,
-  finish: i32,
-  best: i32,
+    begin: i32,
+    finish: i32,
+    best: i32,
 };
 
 const Player = struct {
-  texture: TexturePtr,
-  pos: Vec2f,
-  vel: Vec2f,
-  time: Time,
+    texture: TexturePtr,
+    pos: Vec2f,
+    vel: Vec2f,
+    time: Time,
 };
 
 const Map = struct {
@@ -48,7 +48,7 @@ const Game = struct {
 };
 
 const TilesPerRow = 16;
-const TileSize   = vec2i(64, 64);
+const TileSize = vec2i(64, 64);
 const PlayerSize = vec2f(64, 64);
 
 const MainWinWidth: i32 = 1280;
@@ -65,29 +65,29 @@ const InnerCamera = false;
 //-----------
 //-- vec2f
 //-----------
-inline fn vec2f(x:f32, y:f32) Vec2f {
-  return Vec2f{ .x = x, .y = y};
+inline fn vec2f(x: f32, y: f32) Vec2f {
+    return Vec2f{ .x = x, .y = y };
 }
 
 //-----------
 //-- vec2i
 //-----------
-inline fn vec2i(x:i32, y:i32) Vec2i {
-  return Vec2i{ .x = x, .y = y};
+inline fn vec2i(x: i32, y: i32) Vec2i {
+    return Vec2i{ .x = x, .y = y };
 }
 
 //-----------
 //-- newRect
 //-----------
-inline fn newRect(x:i32, y:i32, w:i32, h:i32) ig.SDL_Rect {
-  return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h};
+inline fn newRect(x: i32, y: i32, w: i32, h: i32) ig.SDL_Rect {
+    return ig.SDL_Rect{ .x = x, .y = y, .w = w, .h = h };
 }
 
 //-----------
 //-- newFRect
 //-----------
-inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
-  return ig.SDL_FRect{.x = x, .y = y, .w = w, .h = h};
+inline fn newFRect(x: f32, y: f32, w: f32, h: f32) ig.SDL_FRect {
+    return ig.SDL_FRect{ .x = x, .y = y, .w = w, .h = h };
 }
 
 //----------------
@@ -95,7 +95,7 @@ inline fn newFRect(x:f32, y:f32, w:f32, h:f32) ig.SDL_FRect {
 //----------------
 const TBodyParts = struct { rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32 };
 inline fn newBodyParts(rect: ig.SDL_Rect, frect: ig.SDL_FRect, flip: u32) TBodyParts {
- return TBodyParts{.rect = rect, .frect = frect, .flip = flip};
+    return TBodyParts{ .rect = rect, .frect = frect, .flip = flip };
 }
 
 //--------------
@@ -105,14 +105,14 @@ fn renderTee(renderer: RendererPtr, texture: TexturePtr, pos: Vec2f) void {
     const x = pos.x;
     const y = pos.y;
     const bodyParts = [8]TBodyParts{
-        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet shadow
-        newBodyParts(newRect(96,   0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body shadow
-        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet shadow
-        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 60, y,      96, 48), ig.SDL_FLIP_NONE),       //-- back feet
-        newBodyParts(newRect(0,    0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE),       //-- body
-        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 36, y,      96, 48), ig.SDL_FLIP_NONE),       //-- front feet
-        newBodyParts(newRect(64,  96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE),       //-- left eye
-        newBodyParts(newRect(64,  96, 32, 32), newFRect(x - 6,  y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
+        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 60, y, 96, 48), ig.SDL_FLIP_NONE), //-- back feet shadow
+        newBodyParts(newRect(96, 0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE), //-- body shadow
+        newBodyParts(newRect(192, 64, 64, 32), newFRect(x - 36, y, 96, 48), ig.SDL_FLIP_NONE), //-- front feet shadow
+        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 60, y, 96, 48), ig.SDL_FLIP_NONE), //-- back feet
+        newBodyParts(newRect(0, 0, 96, 96), newFRect(x - 48, y - 48, 96, 96), ig.SDL_FLIP_NONE), //-- body
+        newBodyParts(newRect(192, 32, 64, 32), newFRect(x - 36, y, 96, 48), ig.SDL_FLIP_NONE), //-- front feet
+        newBodyParts(newRect(64, 96, 32, 32), newFRect(x - 18, y - 21, 36, 36), ig.SDL_FLIP_NONE), //-- left eye
+        newBodyParts(newRect(64, 96, 32, 32), newFRect(x - 6, y - 21, 36, 36), ig.SDL_FLIP_HORIZONTAL), //-- right eye
     };
     for (bodyParts) |v| {
         _ = ig.SDL_RenderCopyExF(renderer, texture, &v.rect, &v.frect, 0.0, null, v.flip);
@@ -177,8 +177,8 @@ fn write(str: []const u8) void { // for print
 //------------------
 const restartPos = vec2f(170, 500); // -- Initial pos
 const restartVel = vec2f(0.0, 0.0); // -- Initial vel
-const restartFinish:i32 = -1;
-const restartBest:i32 = -1;
+const restartFinish: i32 = -1;
+const restartBest: i32 = -1;
 
 fn restartPlayer(self: *Player) void {
     self.pos = restartPos;
@@ -191,11 +191,11 @@ fn restartPlayer(self: *Player) void {
 //--- newTime     -- Time type
 //------------
 fn newTime() Time {
-  return Time{
-    .begin   =  -1,
-    .finish  =  restartFinish,
-    .best    =  restartBest,
-  };
+    return Time{
+        .begin = -1,
+        .finish = restartFinish,
+        .best = restartBest,
+    };
 }
 
 //--------------
@@ -271,42 +271,43 @@ fn handleInput(self: *Game) void {
 //---------------
 //--- formatTime
 //---------------
-fn formatTime(alloc:std.mem.Allocator, ticks: i32) ![]u8 {
-  const mins:u32  = @intCast(@divFloor(@divFloor(ticks , 50) , 60));
-  const secs:u32  = @intCast(@rem(@divFloor(ticks , 50) , 60));
-  const cents:u32 = @intCast(@rem(@divFloor(ticks , 50) , 100));
-  return std.fmt.allocPrint(alloc, "{d:02}:{d:02}:{d:02}", .{mins, secs, cents});
+fn formatTime(alloc: std.mem.Allocator, ticks: i32) ![]u8 {
+    const mins: u32 = @intCast(@divFloor(@divFloor(ticks, 50), 60));
+    const secs: u32 = @intCast(@rem(@divFloor(ticks, 50), 60));
+    const cents: u32 = @intCast(@rem(@divFloor(ticks, 50), 100));
+    return std.fmt.allocPrint(alloc, "{d:02}:{d:02}:{d:02}", .{ mins, secs, cents });
 }
 
 //---------------
 //--- getTileVec
 //---------------
-fn getTileVec(map: Map, pos: Vec2f) u8{
-  return getTile(map, std.math.floor(pos.x), std.math.floor(pos.y));
+fn getTileVec(map: Map, pos: Vec2f) u8 {
+    return getTile(map, std.math.floor(pos.x), std.math.floor(pos.y));
 }
 
 //----------
 //--- logic
 //----------
-fn logic(alloc: std.mem.Allocator, self: *Game,tick: i32) !void {
-  switch (getTileVec(self.map, self.player.pos)) {
-    start => { self.player.time.begin = tick;
-               //std.debug.print("{s}",.{"\nStart"});
-              },
-    finish => {
-      if(self.player.time.begin >= 0){
-        self.player.time.finish = tick - self.player.time.begin;
-        self.player.time.begin = -1;
-        if(self.player.time.best < 0 or self.player.time.finish < self.player.time.best){
-           self.player.time.best = self.player.time.finish;
-            //std.debug.print("{s}",.{"\nBest time"});
-        }
-        //std.debug.print("{s}",.{"\nFinish"});
-        std.debug.print("\n{s}",.{try formatTime(alloc, self.player.time.finish)});
-      }
-    },
-    else => {}
-  }
+fn logic(alloc: std.mem.Allocator, self: *Game, tick: i32) !void {
+    switch (getTileVec(self.map, self.player.pos)) {
+        start => {
+            self.player.time.begin = tick;
+            //std.debug.print("{s}",.{"\nStart"});
+        },
+        finish => {
+            if (self.player.time.begin >= 0) {
+                self.player.time.finish = tick - self.player.time.begin;
+                self.player.time.begin = -1;
+                if (self.player.time.best < 0 or self.player.time.finish < self.player.time.best) {
+                    self.player.time.best = self.player.time.finish;
+                    //std.debug.print("{s}",.{"\nBest time"});
+                }
+                //std.debug.print("{s}",.{"\nFinish"});
+                std.debug.print("\n{s}", .{try formatTime(alloc, self.player.time.finish)});
+            }
+        },
+        else => {},
+    }
 }
 
 //-----------
@@ -342,7 +343,7 @@ fn isSolid(map: Map, pos: Vec2f) bool {
 //--- onGround
 //-------------
 fn onGround(map: Map, pos: Vec2f, size: Vec2f) bool {
-    const sz  = vec2f(size.x * 0.5, size.y * 0.5);
+    const sz = vec2f(size.x * 0.5, size.y * 0.5);
     const pt1 = vec2f(pos.x - sz.x, pos.y + sz.y + 1);
     const pt2 = vec2f(pos.x + sz.x, pos.y + sz.y + 1);
     return isSolid(map, pt1) or isSolid(map, pt2);
@@ -354,9 +355,9 @@ fn onGround(map: Map, pos: Vec2f, size: Vec2f) bool {
 fn testBox(map: Map, pos: Vec2f, size: Vec2f) bool {
     const sz = vec2f(size.x * 0.5, size.y * 0.5);
     return isSolid(map, vec2f(pos.x - sz.x, pos.y - sz.y)) or
-        isSolid(map,    vec2f(pos.x + sz.x, pos.y - sz.y)) or
-        isSolid(map,    vec2f(pos.x - sz.x, pos.y + sz.y)) or
-        isSolid(map,    vec2f(pos.x + sz.x, pos.y + sz.y));
+        isSolid(map, vec2f(pos.x + sz.x, pos.y - sz.y)) or
+        isSolid(map, vec2f(pos.x - sz.x, pos.y + sz.y)) or
+        isSolid(map, vec2f(pos.x + sz.x, pos.y + sz.y));
 }
 
 //----------------
@@ -454,19 +455,19 @@ fn physics(self: *Game) void {
 //---------------
 //--- moveCamera
 //---------------
-fn moveCamera(self: *Game) void{
-  const halfWin = MainWinWidth / 2;
-  if (FluidCamera) {
-    const dist = self.camera.x - self.player.pos.x + halfWin;
-    self.camera.x = self.camera.x - 0.05 * dist;
-    //std.debug.print(dist,self.camera.x);
-  } else if(InnerCamera){
-    const leftArea  = self.player.pos.x - halfWin - 100;
-    const rightArea = self.player.pos.x - halfWin + 100;
-    self.camera.x = std.math.clamp(self.camera.x, leftArea, rightArea);
-  } else{
-    self.camera.x = self.player.pos.x - halfWin;
-  }
+fn moveCamera(self: *Game) void {
+    const halfWin = MainWinWidth / 2;
+    if (FluidCamera) {
+        const dist = self.camera.x - self.player.pos.x + halfWin;
+        self.camera.x = self.camera.x - 0.05 * dist;
+        //std.debug.print(dist,self.camera.x);
+    } else if (InnerCamera) {
+        const leftArea = self.player.pos.x - halfWin - 100;
+        const rightArea = self.player.pos.x - halfWin + 100;
+        self.camera.x = std.math.clamp(self.camera.x, leftArea, rightArea);
+    } else {
+        self.camera.x = self.player.pos.x - halfWin;
+    }
 }
 
 //------------------------
@@ -524,7 +525,7 @@ pub fn main() !void {
     // NewGame
     var game = try newGame(alloc, renderer, texture_player, texture_grass);
 
-    const startTime:c_long = clib.clock();
+    const startTime: c_long = clib.clock();
     var lastTick: c_long = 0;
 
     //-----------

@@ -7,6 +7,7 @@ else
 all: sdl2
 endif
 
+fmt: sdl2_fmt sdl3_fmt
 
 sdl2:
 	@echo --------------------
@@ -33,6 +34,19 @@ sdl3_clean:
 	@echo    SDL3 cleaning
 	@echo --------------------
 	$(foreach exdir,$(PART_NUMS_SDL3), $(call def_make_sdl3,part$(exdir),clean))
+
+sdl3_fmt:
+	@echo --------------------
+	@echo    fmt for SDL3
+	@echo --------------------
+	$(foreach exdir,$(PART_NUMS_SDL3), $(call def_make_sdl3,part$(exdir),fmt))
+
+sdl2_fmt:
+	@echo --------------------
+	@echo    fmt for SDL2
+	@echo --------------------
+	$(foreach exdir,$(PART_NUMS_SDL2), $(call def_make_sdl2,part$(exdir),fmt))
+
 
 ifeq ($(OS),Windows_NT)
 clean: sdl2_clean sdl3_clean

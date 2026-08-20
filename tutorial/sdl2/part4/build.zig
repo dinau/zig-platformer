@@ -20,9 +20,9 @@ pub fn build(b: *std.Build) void {
         .link_libcpp = true,
     });
 
-    const lib_names = [_][]const u8{"sdl2", "stb"};
-    for (lib_names)|lib_name|{
-    main_mod.addImport(lib_name, b.lazyDependency(lib_name, .{}).?.module(lib_name));
+    const lib_names = [_][]const u8{ "sdl2", "stb" };
+    for (lib_names) |lib_name| {
+        main_mod.addImport(lib_name, b.lazyDependency(lib_name, .{}).?.module(lib_name));
     }
 
     const exe = b.addExecutable(.{
@@ -40,12 +40,11 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
 
     // Copy assets to bin folder
-    var assets = [_][]const u8{"mushroom.png", "default.map", "grass.png"};
+    var assets = [_][]const u8{ "mushroom.png", "default.map", "grass.png" };
     blib.copyAssets(b, assets[0..]);
 
     // Copy SDL2 dlls to bin folder
     blib.copydll_sdl2(b);
-
 
     // Install run command
     blib.runCmd(b, exe);
